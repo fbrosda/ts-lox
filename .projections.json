@@ -1,0 +1,19 @@
+{
+  "*": {
+    "console": "node",
+    "start": "make run",
+    "make": "make build"
+  },
+  "server/*.js": {
+    "type": "source",
+    "dispatch": "npx eslint --format compact --fix %"
+  },
+  "index.js": {
+    "type": "source",
+    "dispatch": "npx eslint --format compact --fix %"
+  },
+  "*.json": {
+    "type": "config",
+    "dispatch": "npx prettier --write %"
+  }
+}

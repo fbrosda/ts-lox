@@ -1,0 +1,37 @@
+{
+  "name": "lox-web",
+  "version": "1.0.0",
+  "description": "Lox interpreter/vm for the web.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "lox",
+    "interpreter",
+    "js",
+    "webassembly"
+  ],
+  "author": "Fabian Brosda",
+  "license": "BSD-2-Clause",
+  "type": "module",
+  "devDependencies": {
+    "eslint": "^6.6.0",
+    "eslint-config-prettier": "^6.5.0",
+    "eslint-plugin-prettier": "^3.1.1",
+    "prettier": "^1.19.1"
+  },
+  "eslintConfig": {
+    "extends": [
+      "eslint:recommended",
+      "plugin:prettier/recommended"
+    ],
+    "parserOptions": {
+      "ecmaVersion": 2019
+    },
+    "env": {
+      "node": true,
+      "es6": true
+    }
+  }
+}
