@@ -8,10 +8,6 @@
     "type": "source",
     "dispatch": "npx eslint --format compact --fix %"
   },
-  "index.ts": {
-    "type": "source",
-    "dispatch": "npx eslint --format compact --fix %"
-  },
   "*.json": {
     "type": "config",
     "dispatch": "npx prettier --write %"

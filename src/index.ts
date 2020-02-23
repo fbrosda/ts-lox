@@ -1,4 +1,4 @@
-import { runScript, runPrompt } from './Lox.js';
+import Lox from "./Lox.js";
 
 main(process.argv.slice(2));
 
@@ -7,8 +7,8 @@ function main(args: string[]): void {
     console.log("Usage: jslox [script]");
     process.exit(64);
   } else if (args.length === 1) {
-    runScript(args[0]);
+    Lox.runScript(args[0]);
   } else {
-    runPrompt();
+    Lox.runPrompt();
   }
 }
