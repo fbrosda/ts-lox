@@ -4,11 +4,11 @@
     "start": "make run",
     "make": "make build"
   },
-  "server/*.js": {
+  "src/*.ts": {
     "type": "source",
     "dispatch": "npx eslint --format compact --fix %"
   },
-  "index.js": {
+  "index.ts": {
     "type": "source",
     "dispatch": "npx eslint --format compact --fix %"
   },

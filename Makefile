@@ -1,6 +1,16 @@
-.PHONY: all run
+.PHONY: all run build clean
 
-all: run 
+all: build 
+
+build:
+	npm i
+	npx tsc
 
 run:
-	node index.js
+	node bin/index.js
+
+clean:
+	rm -rf bin/
+
+distclean: clean
+	rm -rf node_modules/

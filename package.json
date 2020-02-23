@@ -2,7 +2,7 @@
   "name": "lox-web",
   "version": "1.0.0",
   "description": "Lox interpreter/vm for the web.",
-  "main": "index.js",
+  "main": "./src/index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -16,14 +16,25 @@
   "license": "BSD-2-Clause",
   "type": "module",
   "devDependencies": {
+    "@types/node": "^13.7.4",
+    "@typescript-eslint/eslint-plugin": "^2.15.0",
+    "@typescript-eslint/parser": "^2.15.0",
     "eslint": "^6.6.0",
-    "eslint-config-prettier": "^6.5.0",
+    "eslint-config-prettier": "^6.10.0",
     "eslint-plugin-prettier": "^3.1.1",
-    "prettier": "^1.19.1"
+    "prettier": "^1.19.1",
+    "typescript": "^3.8.2"
   },
   "eslintConfig": {
+    "parser": "@typescript-eslint/parser",
+    "plugins": [
+      "@typescript-eslint",
+      "prettier"
+    ],
     "extends": [
       "eslint:recommended",
+      "plugin:@typescript-eslint/eslint-recommended",
+      "plugin:@typescript-eslint/recommended",
       "plugin:prettier/recommended"
     ],
     "parserOptions": {
@@ -32,6 +43,14 @@
     "env": {
       "node": true,
       "es6": true
+    },
+    "rules": {
+      "@typescript-eslint/no-use-before-define": [
+        "error",
+        {
+          "functions": false
+        }
+      ]
     }
   }
 }
