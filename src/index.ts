@@ -1,5 +1,7 @@
 import Lox from "./Lox.js";
+import AstPrinter from "./AstPrinter.js"
 
+AstPrinter.main();
 main(process.argv.slice(2));
 
 function main(args: string[]): void {
