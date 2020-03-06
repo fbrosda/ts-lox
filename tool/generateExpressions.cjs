@@ -1,10 +1,10 @@
 const fs = require("fs").promises;
 
 const TYPES = {
-  Binary: "Expression left, Token operator, Expression right",
-  Grouping: "Expression expression",
-  Literal: "Object value",
-  Unary: "Token operator, Expression expression"
+  Binary: "Expression: left, Token: operator, Expression: right",
+  Grouping: "Expression: expression",
+  Literal: "string | number | boolean | null: value",
+  Unary: "Token: operator, Expression: expression"
 };
 
 const DIR = "../src/expr";
@@ -16,7 +16,7 @@ for (const [key, value] of Object.entries(TYPES)) {
 async function generateTypeClass(name, parameter) {
   const parameterList = parameter
     .split(",")
-    .map(param => param.trim().split(" "));
+    .map(param => param.trim().split(":").map( x => x.trim() ));
   let ret = "";
 
   ret += 'import Expression from "./Expression.js";\n';
