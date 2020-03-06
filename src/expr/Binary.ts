@@ -1,4 +1,5 @@
 import Expression from "./Expression.js";
+import Visitor from "./Visitor.js";
 import Token from "../scanner/Token.js";
 
 export default class Binary extends Expression {
@@ -12,5 +13,9 @@ export default class Binary extends Expression {
     this.left = left;
     this.operator = operator;
     this.right = right;
+  }
+
+  accept<T>(visitor: Visitor<T>): T {
+    return visitor.visitBinary(this);
   }
 }

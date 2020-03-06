@@ -13,13 +13,19 @@ for (const [key, value] of Object.entries(TYPES)) {
   generateTypeClass(key, value);
 }
 
+generateVisitorClass();
+
 async function generateTypeClass(name, parameter) {
-  const parameterList = parameter
-    .split(",")
-    .map(param => param.trim().split(":").map( x => x.trim() ));
+  const parameterList = parameter.split(",").map(param =>
+    param
+      .trim()
+      .split(":")
+      .map(x => x.trim())
+  );
   let ret = "";
 
   ret += 'import Expression from "./Expression.js";\n';
+  ret += 'import Visitor from "./Visitor.js";\n';
   if (parameter.includes("Token")) {
     ret += 'import Token from "../scanner/Token.js";\n';
   }
@@ -48,7 +54,29 @@ async function generateTypeClass(name, parameter) {
   }
 
   ret += "  }\n";
+
+  ret += "\n";
+  ret += "  accept<T>(visitor: Visitor<T>): T {\n";
+  ret += `    return visitor.visit${name}(this);\n`;
+  ret += "  }\n";
+
   ret += "}\n";
 
   await fs.writeFile(`${DIR}/${name}.ts`, ret);
+}
+
+async function generateVisitorClass() {
+  let ret = "";
+  for (const key of Object.keys(TYPES)) {
+    ret += `import ${key} from "./${key}.js";\n`;
+  }
+
+  ret += "\n";
+  ret += "export default interface Visitor<T> {\n";
+  for (const key of Object.keys(TYPES)) {
+    ret += `  visit${key}(expression: ${key}): T;\n`;
+  }
+  ret += "}\n";
+
+  await fs.writeFile(`${DIR}/Visitor.ts`, ret);
 }
