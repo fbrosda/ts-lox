@@ -4,7 +4,7 @@ all: build
 
 build:
 	npm i
-	npx tsc
+	npx tsc --build src/tsconfig.json
 
 run:
 	node bin/index.js

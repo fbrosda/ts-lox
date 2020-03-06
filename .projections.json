@@ -8,6 +8,11 @@
     "type": "source",
     "dispatch": "npx eslint --format compact --fix %"
   },
+  "tool/*.cjs": {
+    "type": "source",
+    "dispatch": "npx eslint --format compact --fix %",
+    "start": "node %"
+  },
   "*.json": {
     "type": "config",
     "dispatch": "npx prettier --write %"
