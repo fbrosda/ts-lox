@@ -1,19 +1,51 @@
 const fs = require("fs").promises;
 
+const DIR = "../src/expr";
+const PAD = "  ";
+const EXPR = "Expression";
+const VISITOR = "Visitor";
+
 const TYPES = {
-  Binary: "Expression: left, Token: operator, Expression: right",
-  Grouping: "Expression: expression",
+  Binary: `${EXPR}: left, Token: operator, ${EXPR}: right`,
+  Grouping: `${EXPR}: expression`,
   Literal: "string | number | boolean | null: value",
-  Unary: "Token: operator, Expression: expression"
+  Unary: `Token: operator, ${EXPR}: expression`
 };
 
-const DIR = "../src/expr";
+generateExpressionClass();
+generateVisitorClass();
 
 for (const [key, value] of Object.entries(TYPES)) {
   generateTypeClass(key, value);
 }
 
-generateVisitorClass();
+async function generateExpressionClass() {
+  let ret = "";
+  ret += `import ${VISITOR} from "./${VISITOR}.js";\n`;
+
+  ret += "\n";
+  ret += `export default abstract class ${EXPR} {\n`;
+  ret += `${PAD}abstract accept<T>(visitor: ${VISITOR}<T>) : T;\n`;
+  ret += "}\n";
+
+  await fs.writeFile(`${DIR}/${EXPR}.ts`, ret);
+}
+
+async function generateVisitorClass() {
+  let ret = "";
+  for (const key of Object.keys(TYPES)) {
+    ret += `import ${key} from "./${key}.js";\n`;
+  }
+
+  ret += "\n";
+  ret += `export default interface ${VISITOR}<T> {\n`;
+  for (const key of Object.keys(TYPES)) {
+    ret += `  visit${key}(expression: ${key}): T;\n`;
+  }
+  ret += "}\n";
+
+  await fs.writeFile(`${DIR}/${VISITOR}.ts`, ret);
+}
 
 async function generateTypeClass(name, parameter) {
   const parameterList = parameter.split(",").map(param =>
@@ -24,59 +56,70 @@ async function generateTypeClass(name, parameter) {
   );
   let ret = "";
 
-  ret += 'import Expression from "./Expression.js";\n';
-  ret += 'import Visitor from "./Visitor.js";\n';
-  if (parameter.includes("Token")) {
-    ret += 'import Token from "../scanner/Token.js";\n';
-  }
-  ret += "\n";
-  ret += `export default class ${name} extends Expression {\n`;
-
-  for (const [pType, pName] of parameterList) {
-    ret += `  ${pName}: ${pType};\n`;
-  }
+  ret += writeImports();
 
   ret += "\n";
-  ret += "  constructor(";
-  let isFirst = true;
-  for (const [pType, pName] of parameterList) {
-    if (!isFirst) {
-      ret += ", ";
-    }
-    isFirst = false;
-    ret += `${pName}: ${pType}`;
-  }
-  ret += ") {\n";
-  ret += "    super();\n";
-  ret += "\n";
-  for (const [pType, pName] of parameterList) {
-    ret += `    this.${pName} = ${pName};\n`;
-  }
+  ret += `export default class ${name} extends ${EXPR} {\n`;
 
-  ret += "  }\n";
+  ret += writeMembers();
 
-  ret += "\n";
-  ret += "  accept<T>(visitor: Visitor<T>): T {\n";
-  ret += `    return visitor.visit${name}(this);\n`;
-  ret += "  }\n";
+  ret += writeConstructor();
+
+  ret += writeAcceptFunction();
 
   ret += "}\n";
 
   await fs.writeFile(`${DIR}/${name}.ts`, ret);
-}
 
-async function generateVisitorClass() {
-  let ret = "";
-  for (const key of Object.keys(TYPES)) {
-    ret += `import ${key} from "./${key}.js";\n`;
+  function writeImports() {
+    let tmp = "";
+    tmp += `import ${EXPR} from "./${EXPR}.js";\n`;
+    tmp += `import ${VISITOR} from "./${VISITOR}.js";\n`;
+    if (parameter.includes("Token")) {
+      tmp += 'import Token from "../scanner/Token.js";\n';
+    }
+    return tmp;
   }
 
-  ret += "\n";
-  ret += "export default interface Visitor<T> {\n";
-  for (const key of Object.keys(TYPES)) {
-    ret += `  visit${key}(expression: ${key}): T;\n`;
+  function writeMembers() {
+    let tmp = "";
+    for (const [pType, pName] of parameterList) {
+      tmp += `${PAD}${pName}: ${pType};\n`;
+    }
+    return tmp;
   }
-  ret += "}\n";
 
-  await fs.writeFile(`${DIR}/Visitor.ts`, ret);
+  function writeConstructor() {
+    let tmp = "";
+    tmp += "\n";
+    tmp += `${PAD}constructor(`;
+    let isFirst = true;
+    for (const [pType, pName] of parameterList) {
+      if (!isFirst) {
+        tmp += ", ";
+      }
+      isFirst = false;
+      tmp += `${pName}: ${pType}`;
+    }
+    tmp += ") {\n";
+
+    tmp += `${PAD}${PAD}super();\n`;
+
+    tmp += "\n";
+    for (const [pType, pName] of parameterList) {
+      tmp += `${PAD}${PAD}this.${pName} = ${pName};\n`;
+    }
+
+    tmp += `${PAD}}\n`;
+    return tmp;
+  }
+
+  function writeAcceptFunction() {
+    let tmp = "";
+    tmp += "\n";
+    tmp += `${PAD}accept<T>(visitor: ${VISITOR}<T>): T {\n`;
+    tmp += `${PAD}${PAD}return visitor.visit${name}(this);\n`;
+    tmp += `${PAD}}\n`;
+    return tmp;
+  }
 }
