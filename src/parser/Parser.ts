@@ -32,7 +32,11 @@ export default class Parser {
   }
 
   private expression(): Expression {
-    return this.equality();
+    return this.comma();
+  }
+
+  private comma(): Expression {
+    return this.binaryRule(this.equality.bind(this), TokenType.COMMA);
   }
 
   private equality(): Expression {
