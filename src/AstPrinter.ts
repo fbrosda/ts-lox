@@ -1,5 +1,6 @@
 import Expression from "./expr/Expression.js";
 import Visitor from "./expr/Visitor.js";
+import Ternary from "./expr/Ternary.js";
 import Binary from "./expr/Binary.js";
 import Grouping from "./expr/Grouping.js";
 import Literal from "./expr/Literal.js";
@@ -12,18 +13,26 @@ export default class AstPrinter implements Visitor<string> {
     return expr.accept(this);
   }
 
+  visitTernary(expr: Ternary): string {
+    const name = expr.first.lexeme + expr.second.lexeme
+    return this.parenthesize(name, expr.cond, expr.left, expr.right);
+  }
+
   visitBinary(expr: Binary): string {
     return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
   }
+
   visitGrouping(expr: Grouping): string {
     return this.parenthesize("group", expr.expression);
   }
+
   visitLiteral(expr: Literal): string {
     if (expr.value === null) {
       return "nil";
     }
     return expr.value.toString();
   }
+
   visitUnary(expr: Unary): string {
     return this.parenthesize(expr.operator.lexeme, expr.expression);
   }

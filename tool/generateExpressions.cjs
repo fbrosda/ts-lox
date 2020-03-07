@@ -6,10 +6,11 @@ const EXPR = "Expression";
 const VISITOR = "Visitor";
 
 const TYPES = {
+  Ternary: `${EXPR}: cond, Token: first, ${EXPR}: left, Token: second, ${EXPR}: right`,
   Binary: `${EXPR}: left, Token: operator, ${EXPR}: right`,
+  Unary: `Token: operator, ${EXPR}: expression`,
   Grouping: `${EXPR}: expression`,
-  Literal: "string | number | boolean | null: value",
-  Unary: `Token: operator, ${EXPR}: expression`
+  Literal: "string | number | boolean | null: value"
 };
 
 generateExpressionClass();

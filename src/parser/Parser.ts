@@ -3,12 +3,13 @@ import ParseError from "./ParseError.js";
 import TokenType from "../scanner/TokenType.js";
 import Token from "../scanner/Token.js";
 import Expression from "../expr/Expression.js";
+import Ternary from "../expr/Ternary.js";
 import Binary from "../expr/Binary.js";
 import Unary from "../expr/Unary.js";
 import Literal from "../expr/Literal.js";
 import Grouping from "../expr/Grouping.js";
 
-interface Rule {
+interface ExpressionF {
   (): Expression;
 }
 
@@ -32,15 +33,32 @@ export default class Parser {
   }
 
   private expression(): Expression {
-    return this.comma();
+    return this.condition();
+  }
+
+  private condition(): Expression {
+    let expr = this.comma();
+    if (this.match(TokenType.QUESTIONMARK)) {
+      const firstOp = this.previous();
+      const left = this.expression();
+      if (this.match(TokenType.COLON)) {
+        const secondOp = this.previous();
+        const right = this.condition();
+
+        expr = new Ternary(expr, firstOp, left, secondOp, right);
+      } else {
+        throw this.error(this.peek(), "Expect ':' of ternary operator.");
+      }
+    }
+    return expr;
   }
 
   private comma(): Expression {
-    return this.binaryRule(this.equality.bind(this), TokenType.COMMA);
+    return this.binaryExpression(this.equality.bind(this), TokenType.COMMA);
   }
 
   private equality(): Expression {
-    return this.binaryRule(
+    return this.binaryExpression(
       this.comparison.bind(this),
       TokenType.BANG_EQUAL,
       TokenType.EQUAL_EQUAL
@@ -48,7 +66,7 @@ export default class Parser {
   }
 
   private comparison(): Expression {
-    return this.binaryRule(
+    return this.binaryExpression(
       this.addition.bind(this),
       TokenType.GREATER,
       TokenType.GREATER_EQUAL,
@@ -58,7 +76,7 @@ export default class Parser {
   }
 
   private addition(): Expression {
-    return this.binaryRule(
+    return this.binaryExpression(
       this.multiplication.bind(this),
       TokenType.MINUS,
       TokenType.PLUS
@@ -66,7 +84,7 @@ export default class Parser {
   }
 
   private multiplication(): Expression {
-    return this.binaryRule(
+    return this.binaryExpression(
       this.unary.bind(this),
       TokenType.SLASH,
       TokenType.STAR
@@ -107,7 +125,10 @@ export default class Parser {
     throw this.error(this.peek(), "Expect expression.");
   }
 
-  private binaryRule(handle: Rule, ...operators: TokenType[]): Expression {
+  private binaryExpression(
+    handle: ExpressionF,
+    ...operators: TokenType[]
+  ): Expression {
     let expr = handle();
 
     while (this.match(...operators)) {
