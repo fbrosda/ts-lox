@@ -122,6 +122,30 @@ export default class Parser {
       return new Grouping(expr);
     }
 
+    // Error productions.
+    if (
+      this.errorProduction(
+        this.equality.bind(this),
+        TokenType.BANG_EQUAL,
+        TokenType.EQUAL_EQUAL
+      ) ||
+      this.errorProduction(
+        this.comparison.bind(this),
+        TokenType.GREATER,
+        TokenType.GREATER_EQUAL,
+        TokenType.LESS,
+        TokenType.LESS_EQUAL
+      ) ||
+      this.errorProduction(this.addition.bind(this), TokenType.PLUS) ||
+      this.errorProduction(
+        this.multiplication.bind(this),
+        TokenType.SLASH,
+        TokenType.STAR
+      )
+    ) {
+      throw new ParseError();
+    }
+
     throw this.error(this.peek(), "Expect expression.");
   }
 
@@ -137,6 +161,15 @@ export default class Parser {
       expr = new Binary(expr, operator, right);
     }
     return expr;
+  }
+
+  private errorProduction(handle: ExpressionF, ...types: TokenType[]): boolean {
+    if (this.match(...types)) {
+      this.error(this.previous(), "Missing left-hand operand.");
+      handle();
+      return true;
+    }
+    return false;
   }
 
   private match(...types: TokenType[]): boolean {
