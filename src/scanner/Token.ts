@@ -3,7 +3,7 @@ import TokenType from "./TokenType.js";
 export default class Token {
   type: TokenType;
   lexeme: string;
-  literal?: string | number;
+  literal: string | number | null;
   line: number;
 
   constructor(
@@ -14,9 +14,7 @@ export default class Token {
   ) {
     this.type = type;
     this.lexeme = lexeme;
-    if (literal) {
-      this.literal = literal;
-    }
+    this.literal = literal;
     this.line = line;
   }
 

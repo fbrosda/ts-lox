@@ -1,7 +1,11 @@
 import { promises as fs } from "fs";
 import * as readline from "readline";
 
+import AstPrinter from "./AstPrinter.js";
 import Scanner from "./scanner/Scanner.js";
+import Token from "./scanner/Token.js";
+import TokenType from "./scanner/TokenType.js";
+import Parser from "./parser/Parser.js";
 
 export default class Lox {
   static hadError = false;
@@ -32,13 +36,30 @@ export default class Lox {
     const scanner = new Scanner(source);
     const tokens = scanner.scanTokens();
 
-    for (const index in tokens) {
-      console.log(tokens[index].toString());
+    const parser = new Parser(tokens);
+    const expr = parser.parse();
+
+    if (this.hadError) {
+      return;
+    } else if( expr !== null ) {
+      console.log(new AstPrinter().print(expr));
     }
   }
-  static error(line: number, message: string): void {
-    this.report(line, "", message);
+
+  static error(lineOrToken: number | Token, message: string): void {
+    if (lineOrToken instanceof Token) {
+      const token = lineOrToken;
+      if (token.type === TokenType.EOF) {
+        this.report(token.line, " at end", message);
+      } else {
+        this.report(token.line, ` at '${token.lexeme}'`, message);
+      }
+    } else {
+      const line = lineOrToken;
+      this.report(line, "", message);
+    }
   }
+
   private static report(line: number, where: string, message: string): void {
     console.error(`[line: ${line}] Error ${where}: ${message}`);
     Lox.hadError = true;
