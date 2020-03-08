@@ -6,9 +6,11 @@ import Scanner from "./scanner/Scanner.js";
 import Token from "./scanner/Token.js";
 import TokenType from "./scanner/TokenType.js";
 import Parser from "./parser/Parser.js";
+import Interpreter from "./interpreter/Interpreter.js";
 
 export default class Lox {
   static hadError = false;
+  private static interpreter = new Interpreter();
 
   static async runScript(path: string): Promise<void> {
     const contents = await fs.readFile(path, { encoding: "utf-8" });
@@ -41,8 +43,9 @@ export default class Lox {
 
     if (this.hadError) {
       return;
-    } else if( expr !== null ) {
+    } else if (expr !== null) {
       console.log(new AstPrinter().print(expr));
+      this.interpreter.interpret(expr);
     }
   }
 
