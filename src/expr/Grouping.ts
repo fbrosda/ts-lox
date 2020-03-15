@@ -1,10 +1,10 @@
-import Expression from "./Expression.js";
+import Expr from "./Expr.js";
 import Visitor from "./Visitor.js";
 
-export default class Grouping extends Expression {
-  expression: Expression;
+export default class Grouping extends Expr {
+  expression: Expr;
 
-  constructor(expression: Expression) {
+  constructor(expression: Expr) {
     super();
 
     this.expression = expression;

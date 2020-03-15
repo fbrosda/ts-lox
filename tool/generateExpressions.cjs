@@ -2,7 +2,7 @@ const fs = require("fs").promises;
 
 const DIR = "../src/expr";
 const PAD = "  ";
-const EXPR = "Expression";
+const EXPR = "Expr";
 const VISITOR = "Visitor";
 
 const TYPES = {

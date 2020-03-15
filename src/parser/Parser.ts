@@ -2,7 +2,7 @@ import Lox from "../Lox.js";
 import ParseError from "./ParseError.js";
 import TokenType from "../scanner/TokenType.js";
 import Token from "../scanner/Token.js";
-import Expression from "../expr/Expression.js";
+import Expr from "../expr/Expr.js";
 import Ternary from "../expr/Ternary.js";
 import Binary from "../expr/Binary.js";
 import Unary from "../expr/Unary.js";
@@ -10,7 +10,7 @@ import Literal from "../expr/Literal.js";
 import Grouping from "../expr/Grouping.js";
 
 interface ExpressionF {
-  (): Expression;
+  (): Expr;
 }
 
 export default class Parser {
@@ -21,7 +21,7 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  parse(): Expression | null {
+  parse(): Expr | null {
     try {
       return this.expression();
     } catch (e) {
@@ -32,11 +32,11 @@ export default class Parser {
     }
   }
 
-  private expression(): Expression {
+  private expression(): Expr {
     return this.condition();
   }
 
-  private condition(): Expression {
+  private condition(): Expr {
     let expr = this.comma();
     if (this.match(TokenType.QUESTIONMARK)) {
       const firstOp = this.previous();
@@ -53,11 +53,11 @@ export default class Parser {
     return expr;
   }
 
-  private comma(): Expression {
+  private comma(): Expr {
     return this.binaryExpression(this.equality.bind(this), TokenType.COMMA);
   }
 
-  private equality(): Expression {
+  private equality(): Expr {
     return this.binaryExpression(
       this.comparison.bind(this),
       TokenType.BANG_EQUAL,
@@ -65,7 +65,7 @@ export default class Parser {
     );
   }
 
-  private comparison(): Expression {
+  private comparison(): Expr {
     return this.binaryExpression(
       this.addition.bind(this),
       TokenType.GREATER,
@@ -75,7 +75,7 @@ export default class Parser {
     );
   }
 
-  private addition(): Expression {
+  private addition(): Expr {
     return this.binaryExpression(
       this.multiplication.bind(this),
       TokenType.MINUS,
@@ -83,7 +83,7 @@ export default class Parser {
     );
   }
 
-  private multiplication(): Expression {
+  private multiplication(): Expr {
     return this.binaryExpression(
       this.unary.bind(this),
       TokenType.SLASH,
@@ -91,7 +91,7 @@ export default class Parser {
     );
   }
 
-  private unary(): Expression {
+  private unary(): Expr {
     if (this.match(TokenType.BANG, TokenType.MINUS)) {
       const operator = this.previous();
       const right = this.unary();
@@ -101,7 +101,7 @@ export default class Parser {
     return this.primary();
   }
 
-  private primary(): Expression {
+  private primary(): Expr {
     if (this.match(TokenType.FALSE)) {
       return new Literal(false);
     }
@@ -152,7 +152,7 @@ export default class Parser {
   private binaryExpression(
     handle: ExpressionF,
     ...operators: TokenType[]
-  ): Expression {
+  ): Expr {
     let expr = handle();
 
     while (this.match(...operators)) {

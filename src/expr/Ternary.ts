@@ -1,15 +1,15 @@
-import Expression from "./Expression.js";
+import Expr from "./Expr.js";
 import Visitor from "./Visitor.js";
 import Token from "../scanner/Token.js";
 
-export default class Ternary extends Expression {
-  cond: Expression;
+export default class Ternary extends Expr {
+  cond: Expr;
   first: Token;
-  left: Expression;
+  left: Expr;
   second: Token;
-  right: Expression;
+  right: Expr;
 
-  constructor(cond: Expression, first: Token, left: Expression, second: Token, right: Expression) {
+  constructor(cond: Expr, first: Token, left: Expr, second: Token, right: Expr) {
     super();
 
     this.cond = cond;

@@ -1,4 +1,4 @@
-import Expression from "./expr/Expression.js";
+import Expr from "./expr/Expr.js";
 import Visitor from "./expr/Visitor.js";
 import Ternary from "./expr/Ternary.js";
 import Binary from "./expr/Binary.js";
@@ -9,7 +9,7 @@ import Token from "./scanner/Token.js";
 import TokenType from "./scanner/TokenType.js";
 
 export default class AstPrinter implements Visitor<string> {
-  print(expr: Expression): string {
+  print(expr: Expr): string {
     return expr.accept(this);
   }
 
@@ -37,7 +37,7 @@ export default class AstPrinter implements Visitor<string> {
     return this.parenthesize(expr.operator.lexeme, expr.expression);
   }
 
-  private parenthesize(name: string, ...exprs: Expression[]): string {
+  private parenthesize(name: string, ...exprs: Expr[]): string {
     let ret = "";
     ret += `(${name}`;
     for (const expr of exprs) {

@@ -1,6 +1,6 @@
 import Lox from "../Lox.js";
 import Visitor from "../expr/Visitor.js";
-import Expression from "../expr/Expression.js";
+import Expr from "../expr/Expr.js";
 import Ternary from "../expr/Ternary.js";
 import Binary from "../expr/Binary.js";
 import Unary from "../expr/Unary.js";
@@ -13,7 +13,7 @@ import RuntimeError from "../interpreter/RuntimeError.js";
 type LiteralValue = string | number | boolean | null;
 
 export default class Interpreter implements Visitor<LiteralValue> {
-  interpret(expression: Expression): void {
+  interpret(expression: Expr): void {
     try {
       const value = this.evaluate(expression);
       console.log(this.stringify(value));
@@ -113,7 +113,7 @@ export default class Interpreter implements Visitor<LiteralValue> {
     }
   }
 
-  private evaluate(expression: Expression): LiteralValue {
+  private evaluate(expression: Expr): LiteralValue {
     return expression.accept(this);
   }
 

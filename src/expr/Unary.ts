@@ -1,12 +1,12 @@
-import Expression from "./Expression.js";
+import Expr from "./Expr.js";
 import Visitor from "./Visitor.js";
 import Token from "../scanner/Token.js";
 
-export default class Unary extends Expression {
+export default class Unary extends Expr {
   operator: Token;
-  expression: Expression;
+  expression: Expr;
 
-  constructor(operator: Token, expression: Expression) {
+  constructor(operator: Token, expression: Expr) {
     super();
 
     this.operator = operator;

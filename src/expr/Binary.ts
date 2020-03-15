@@ -1,13 +1,13 @@
-import Expression from "./Expression.js";
+import Expr from "./Expr.js";
 import Visitor from "./Visitor.js";
 import Token from "../scanner/Token.js";
 
-export default class Binary extends Expression {
-  left: Expression;
+export default class Binary extends Expr {
+  left: Expr;
   operator: Token;
-  right: Expression;
+  right: Expr;
 
-  constructor(left: Expression, operator: Token, right: Expression) {
+  constructor(left: Expr, operator: Token, right: Expr) {
     super();
 
     this.left = left;

@@ -1,7 +1,7 @@
-import Expression from "./Expression.js";
+import Expr from "./Expr.js";
 import Visitor from "./Visitor.js";
 
-export default class Literal extends Expression {
+export default class Literal extends Expr {
   value: string | number | boolean | null;
 
   constructor(value: string | number | boolean | null) {
