@@ -59,6 +59,12 @@ export default class Interpreter implements Visitor<LiteralValue> {
         return (left as number) - (right as number);
       case TokenType.SLASH:
         this.checkNumberOperands(expression.operator, left, right);
+        if (right === 0) {
+          throw new RuntimeError(
+            expression.operator,
+            "Dividing by zero is not possible."
+          );
+        }
         return (left as number) / (right as number);
       case TokenType.STAR:
         this.checkNumberOperands(expression.operator, left, right);
@@ -67,7 +73,7 @@ export default class Interpreter implements Visitor<LiteralValue> {
         if (this.isNumber(left) && this.isNumber(right)) {
           return (left as number) + (right as number);
         }
-        if (this.isString(left) && this.isString(right)) {
+        if (this.isString(left) || this.isString(right)) {
           return (left as string) + (right as string);
         }
         throw new RuntimeError(
