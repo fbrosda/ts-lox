@@ -1,3 +1,4 @@
+import Lox from "../Lox.js";
 import Visitor from "../expr/Visitor.js";
 import Expression from "../expr/Expression.js";
 import Ternary from "../expr/Ternary.js";
@@ -6,6 +7,8 @@ import Unary from "../expr/Unary.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import TokenType from "../scanner/TokenType.js";
+import Token from "../scanner/Token.js";
+import RuntimeError from "../interpreter/RuntimeError.js";
 
 type LiteralValue = string | number | boolean | null;
 
@@ -13,9 +16,13 @@ export default class Interpreter implements Visitor<LiteralValue> {
   interpret(expression: Expression): void {
     try {
       const value = this.evaluate(expression);
-      console.log(value);
+      console.log(this.stringify(value));
     } catch (e) {
-      console.log(e);
+      if (e instanceof RuntimeError) {
+        Lox.runtimeError(e);
+      } else {
+        throw e;
+      }
     }
   }
 
@@ -32,6 +39,7 @@ export default class Interpreter implements Visitor<LiteralValue> {
 
     switch (expression.operator.type) {
       case TokenType.MINUS:
+        this.checkNumberOperands(expression.operator, right);
         return -(right as number);
         break;
       case TokenType.BANG:
@@ -47,10 +55,13 @@ export default class Interpreter implements Visitor<LiteralValue> {
 
     switch (expression.operator.type) {
       case TokenType.MINUS:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) - (right as number);
       case TokenType.SLASH:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) / (right as number);
       case TokenType.STAR:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) * (right as number);
       case TokenType.PLUS:
         if (this.isNumber(left) && this.isNumber(right)) {
@@ -59,14 +70,22 @@ export default class Interpreter implements Visitor<LiteralValue> {
         if (this.isString(left) && this.isString(right)) {
           return (left as string) + (right as string);
         }
+        throw new RuntimeError(
+          expression.operator,
+          "Operands must be either strings or numbers."
+        );
         break;
       case TokenType.GREATER:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) > (right as number);
       case TokenType.GREATER_EQUAL:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) >= (right as number);
       case TokenType.LESS:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) < (right as number);
       case TokenType.LESS_EQUAL:
+        this.checkNumberOperands(expression.operator, left, right);
         return (left as number) <= (right as number);
       case TokenType.BANG_EQUAL:
         return !this.isEqual(left, right);
@@ -90,6 +109,19 @@ export default class Interpreter implements Visitor<LiteralValue> {
 
   private evaluate(expression: Expression): LiteralValue {
     return expression.accept(this);
+  }
+
+  private checkNumberOperands(
+    operator: Token,
+    ...operands: LiteralValue[]
+  ): void {
+    if (
+      !operands
+        .map(operand => this.isNumber(operand))
+        .reduce((acc, val) => acc && val, true)
+    ) {
+      throw new RuntimeError(operator, "All operands must be numbers");
+    }
   }
 
   private isTruthy(val: LiteralValue): boolean {
@@ -116,5 +148,12 @@ export default class Interpreter implements Visitor<LiteralValue> {
 
   private isString(val: LiteralValue): boolean {
     return typeof val === "string";
+  }
+
+  private stringify(val: LiteralValue): string {
+    if (val === null) {
+      return "nil";
+    }
+    return val.toString();
   }
 }
