@@ -58,12 +58,9 @@ export default class Parser {
   private varDeclaration(): Stmt {
     const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
 
-    let initializer = null;
-    if (this.match(TokenType.EQUAL)) {
-      initializer = this.expression();
-    } else {
-      initializer = new Literal(null);
-    }
+    const initializer = this.match(TokenType.EQUAL)
+      ? this.expression()
+      : new Literal(null);
     this.consumeSemicolon();
     return new Var(name, initializer);
   }

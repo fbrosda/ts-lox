@@ -59,16 +59,32 @@ export default class Transpiler
   }
 
   visitBinary(expr: Binary): string {
-    return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+    let op;
+    if (expr.operator.type == TokenType.EQUAL_EQUAL) {
+      op = "eqv?";
+    } else if (expr.operator.type == TokenType.COMMA) {
+      op = "begin";
+    } else if (expr.operator.type == TokenType.BANG_EQUAL) {
+      expr.operator.type = TokenType.EQUAL_EQUAL;
+      expr.operator.lexeme = "==";
+      const ret = new Unary(
+        new Token(TokenType.BANG, "!", null, expr.operator.line),
+        expr
+      );
+      return ret.accept(this);
+    } else {
+      op = expr.operator.lexeme;
+    }
+    return this.parenthesize(op, expr.left, expr.right);
   }
 
   visitGrouping(expr: Grouping): string {
-    return this.parenthesize("group", expr.expression);
+    return expr.expression.accept(this);
   }
 
   visitLiteral(expr: Literal): string {
     if (expr.value === null) {
-      return "nil";
+      return "#nil";
     }
     if (typeof expr.value === "string") {
       return `"${expr.value}"`;
@@ -128,6 +144,6 @@ export default class Transpiler
     );
 
     const statements = [new Expression(expression)];
-    console.log(new SchemeTranspiler().transpile(statements));
+    console.log(new Transpiler().transpile(statements));
   }
 }
