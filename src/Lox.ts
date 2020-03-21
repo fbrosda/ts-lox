@@ -1,12 +1,12 @@
 import { promises as fs } from "fs";
 import * as readline from "readline";
-import SchemeTranspiler from "./SchemeTranspiler.js";
 import Interpreter from "./interpreter/Interpreter.js";
 import RuntimeError from "./interpreter/RuntimeError.js";
 import Parser from "./parser/Parser.js";
 import Scanner from "./scanner/Scanner.js";
 import Token from "./scanner/Token.js";
 import TokenType from "./scanner/TokenType.js";
+import SchemeTranspiler from "./scheme/Transpiler.js";
 
 export default class Lox {
   static hadError = false;
