@@ -14,6 +14,7 @@ import Print from "../stmt/Print.js";
 import Expression from "../stmt/Expression.js";
 import Var from "../stmt/Var.js";
 import Assign from "../expr/Assign.js";
+import Block from "../stmt/Block.js";
 
 interface ExpressionF {
   (): Expr;
@@ -71,6 +72,9 @@ export default class Parser {
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
+    if (this.match(TokenType.LEFT_BRACE)) {
+      return new Block(this.block());
+    }
     return this.expressionStatement();
   }
 
@@ -84,6 +88,20 @@ export default class Parser {
     const value = this.expression();
     this.consumeSemicolon();
     return new Expression(value);
+  }
+
+  private block(): Stmt[] {
+    const statements = [];
+
+    while (!this.check(TokenType.RIGHT_BRACE)) {
+      const statement = this.declaration();
+      if (statement) {
+        statements.push(statement);
+      }
+    }
+    this.consume(TokenType.RIGHT_BRACE, "Expect '}' after block.");
+
+    return statements;
   }
 
   private expression(): Expr {

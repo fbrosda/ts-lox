@@ -18,6 +18,7 @@ import Environment from "./Environment.js";
 import Var from "../stmt/Var.js";
 import Variable from "../expr/Variable.js";
 import Assign from "../expr/Assign.js";
+import Block from "../stmt/Block.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -37,13 +38,17 @@ export default class Interpreter
     }
   }
 
+  visitPrint(statement: Print): void {
+    const value = this.evaluate(statement.expression);
+    console.log(this.stringify(value));
+  }
+
   visitExpression(statement: Expression): void {
     this.evaluate(statement.expression);
   }
 
-  visitPrint(statement: Print): void {
-    const value = this.evaluate(statement.expression);
-    console.log(this.stringify(value));
+  visitBlock(statement: Block): void {
+    this.executeBlock(statement.statements, new Environment(this.environment));
   }
 
   visitVar(statement: Var): void {
@@ -154,6 +159,18 @@ export default class Interpreter
 
   private execute(statement: Stmt): void {
     return statement.accept(this);
+  }
+
+  private executeBlock(statements: Stmt[], environment: Environment): void {
+    const previous = this.environment;
+    try {
+      this.environment = environment;
+      for (const statement of statements) {
+        this.execute(statement);
+      }
+    } finally {
+      this.environment = previous;
+    }
   }
 
   private checkNumberOperands(

@@ -1,6 +1,6 @@
 import { promises as fs } from "fs";
 import * as readline from "readline";
-import AstPrinter from "./AstPrinter.js";
+import SchemeTranspiler from "./SchemeTranspiler.js";
 import Interpreter from "./interpreter/Interpreter.js";
 import RuntimeError from "./interpreter/RuntimeError.js";
 import Parser from "./parser/Parser.js";
@@ -12,11 +12,15 @@ export default class Lox {
   static hadError = false;
   static hadRuntimeError = false;
   private static interpreter = new Interpreter();
-  private static astPrinter = new AstPrinter();
+  private static schemeTranspiler = new SchemeTranspiler();
 
-  static async runScript(path: string): Promise<void> {
+  static async runScript(path: string, transpile: boolean): Promise<void> {
     const contents = await fs.readFile(path, { encoding: "utf-8" });
-    Lox.run(contents);
+    if (transpile) {
+      Lox.transpile(contents);
+    } else {
+      Lox.run(contents);
+    }
 
     if (this.hadError) {
       process.exit(65);
@@ -52,8 +56,22 @@ export default class Lox {
     if (this.hadError) {
       return;
     } else if (statements !== null) {
-      console.log(this.astPrinter.print(statements));
       this.interpreter.interpret(statements);
+    }
+  }
+
+  private static transpile(source: string): void {
+    const scanner = new Scanner(source);
+    const tokens = scanner.scanTokens();
+
+    const parser = new Parser(tokens);
+    const statements = parser.parse();
+
+    if (this.hadError) {
+      return;
+    } else if (statements !== null) {
+      const ret = this.schemeTranspiler.transpile(statements);
+      console.log(ret);
     }
   }
 

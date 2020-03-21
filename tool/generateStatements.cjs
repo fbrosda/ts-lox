@@ -7,6 +7,7 @@ const STMT = "Stmt";
 const VISITOR = "Visitor";
 
 const TYPES = {
+  Block: `${STMT}[]: statements`,
   Expression: `${EXPR}: expression`,
   Print: `${EXPR}: expression`,
   Var: `Token: name, ${EXPR}: initializer`

@@ -3,9 +3,11 @@ import Token from "../scanner/Token.js";
 import RuntimeError from "./RuntimeError.js";
 
 export default class Environment {
+  private enclosing: Environment | null;
   private values: Map<string, LiteralValue>;
 
-  constructor() {
+  constructor(enclosing: Environment | null = null) {
+    this.enclosing = enclosing;
     this.values = new Map();
   }
 
@@ -21,6 +23,10 @@ export default class Environment {
       return value;
     }
 
+    if (this.enclosing) {
+      return this.enclosing.get(name);
+    }
+
     throw new RuntimeError(name, `Undefined variable'${varName}'.'`);
   }
 
@@ -28,6 +34,11 @@ export default class Environment {
     const varName = name.lexeme;
     if (this.values.has(varName)) {
       this.values.set(varName, value);
+      return;
+    }
+
+    if (this.enclosing) {
+      this.enclosing.assign(name, value);
       return;
     }
 

@@ -13,14 +13,13 @@ import Expression from "./stmt/Expression.js";
 import Print from "./stmt/Print.js";
 import Var from "./stmt/Var.js";
 import Variable from "./expr/Variable.js";
-import Environment from "./interpreter/Environment.js";
 import Assign from "./expr/Assign.js";
+import Block from "./stmt/Block.js";
 
-export default class AstPrinter
+export default class SchemeTranspiler
   implements ExprVisitor<string>, StmtVisitor<string> {
-  private environment = new Environment();
-
-  print(statements: Stmt[]): string {
+  private depth = 0;
+  transpile(statements: Stmt[]): string {
     let ret = "";
     for (const statement of statements) {
       ret += statement.accept(this);
@@ -38,15 +37,25 @@ export default class AstPrinter
     return `(display ${val}) (newline)\n`;
   }
 
+  visitBlock(statement: Block): string {
+    let ret = "((lambda ()\n";
+    this.depth += 1;
+    for (const stmt of statement.statements) {
+      ret += this.indent();
+      ret += stmt.accept(this);
+    }
+    this.depth -= 1;
+    ret += `${this.indent()}))\n`;
+    return ret;
+  }
+
   visitVar(statement: Var): string {
     const val = statement.initializer.accept(this);
-    this.environment.define(statement.name.lexeme, val);
     return `(define ${statement.name.lexeme} ${val})\n`;
   }
 
   visitTernary(expr: Ternary): string {
-    const name = expr.first.lexeme + expr.second.lexeme;
-    return this.parenthesize(name, expr.cond, expr.left, expr.right);
+    return this.parenthesize("if", expr.cond, expr.left, expr.right);
   }
 
   visitBinary(expr: Binary): string {
@@ -61,15 +70,30 @@ export default class AstPrinter
     if (expr.value === null) {
       return "nil";
     }
+    if (typeof expr.value === "string") {
+      return `"${expr.value}"`;
+    }
+    if (typeof expr.value === "boolean") {
+      return `${expr.value ? "#t" : "#f"}`;
+    }
     return expr.value.toString();
   }
 
   visitUnary(expr: Unary): string {
-    return this.parenthesize(expr.operator.lexeme, expr.expression);
+    const right = expr.expression.accept(this);
+
+    switch (expr.operator.type) {
+      case TokenType.MINUS:
+        return `(- ${right})`;
+        break;
+      case TokenType.BANG:
+        return `(not ${right})`;
+        break;
+    }
+    return "";
   }
 
   visitVariable(expr: Variable): string {
-    // const value = this.environment.get(expr.name);
     return `${expr.name.lexeme}`;
   }
 
@@ -88,6 +112,14 @@ export default class AstPrinter
     return ret;
   }
 
+  private indent(): string {
+    let ret = "";
+    for (let i = this.depth; i > 0; i--) {
+      ret += "  ";
+    }
+    return ret;
+  }
+
   static main(): void {
     const expression = new Binary(
       new Unary(new Token(TokenType.MINUS, "-", null, 1), new Literal(123)),
@@ -96,6 +128,6 @@ export default class AstPrinter
     );
 
     const statements = [new Expression(expression)];
-    console.log(new AstPrinter().print(statements));
+    console.log(new SchemeTranspiler().transpile(statements));
   }
 }
