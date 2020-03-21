@@ -1,0 +1,223 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_OUTPUT_FILESEP	slash	/slash or backslash/
+!_TAG_OUTPUT_MODE	u-ctags	/u-ctags or e-ctags/
+!_TAG_PROGRAM_AUTHOR	Universal Ctags Team	//
+!_TAG_PROGRAM_NAME	Universal Ctags	/Derived from Exuberant Ctags/
+!_TAG_PROGRAM_URL	https://ctags.io/	/official site/
+!_TAG_PROGRAM_VERSION	0.0.0	/a3c87ab5/
+AND	src/scanner/TokenType.ts	/^  AND = 100,$/;"	e	enum:TokenType
+AstPrinter	src/AstPrinter.ts	/^export default class AstPrinter implements Visitor<string> {$/;"	c
+BANG	src/scanner/TokenType.ts	/^  BANG,$/;"	e	enum:TokenType
+BANG_EQUAL	src/scanner/TokenType.ts	/^  BANG_EQUAL,$/;"	e	enum:TokenType
+Binary	src/expr/Binary.ts	/^export default class Binary extends Expr {$/;"	c
+CLASS	src/scanner/TokenType.ts	/^  CLASS,$/;"	e	enum:TokenType
+COLON	src/scanner/TokenType.ts	/^  COLON,$/;"	e	enum:TokenType
+COMMA	src/scanner/TokenType.ts	/^  COMMA,$/;"	e	enum:TokenType
+DOT	src/scanner/TokenType.ts	/^  DOT,$/;"	e	enum:TokenType
+ELSE	src/scanner/TokenType.ts	/^  ELSE,$/;"	e	enum:TokenType
+EOF	src/scanner/TokenType.ts	/^  EOF,$/;"	e	enum:TokenType
+EQUAL	src/scanner/TokenType.ts	/^  EQUAL,$/;"	e	enum:TokenType
+EQUAL_EQUAL	src/scanner/TokenType.ts	/^  EQUAL_EQUAL,$/;"	e	enum:TokenType
+Expr	src/expr/Expr.ts	/^export default abstract class Expr {$/;"	c
+Expression	src/stmt/Expression.ts	/^export default class Expression extends Stmt {$/;"	c
+ExpressionF	src/parser/Parser.ts	/^interface ExpressionF {$/;"	i
+FALSE	src/scanner/TokenType.ts	/^  FALSE,$/;"	e	enum:TokenType
+FOR	src/scanner/TokenType.ts	/^  FOR,$/;"	e	enum:TokenType
+FUN	src/scanner/TokenType.ts	/^  FUN,$/;"	e	enum:TokenType
+GREATER	src/scanner/TokenType.ts	/^  GREATER,$/;"	e	enum:TokenType
+GREATER_EQUAL	src/scanner/TokenType.ts	/^  GREATER_EQUAL,$/;"	e	enum:TokenType
+Grouping	src/expr/Grouping.ts	/^export default class Grouping extends Expr {$/;"	c
+IDENTIFIER	src/scanner/TokenType.ts	/^  IDENTIFIER,$/;"	e	enum:TokenType
+IF	src/scanner/TokenType.ts	/^  IF,$/;"	e	enum:TokenType
+Interpreter	src/interpreter/Interpreter.ts	/^export default class Interpreter implements Visitor<LiteralValue> {$/;"	c
+LEFT_BRACE	src/scanner/TokenType.ts	/^  LEFT_BRACE,$/;"	e	enum:TokenType
+LEFT_PAREN	src/scanner/TokenType.ts	/^  LEFT_PAREN,$/;"	e	enum:TokenType
+LESS	src/scanner/TokenType.ts	/^  LESS,$/;"	e	enum:TokenType
+LESS_EQUAL	src/scanner/TokenType.ts	/^  LESS_EQUAL,$/;"	e	enum:TokenType
+Literal	src/expr/Literal.ts	/^export default class Literal extends Expr {$/;"	c
+LiteralValue	src/interpreter/Interpreter.ts	/^type LiteralValue = string | number | boolean | null;$/;"	a
+Lox	src/Lox.ts	/^export default class Lox {$/;"	c
+MINUS	src/scanner/TokenType.ts	/^  MINUS,$/;"	e	enum:TokenType
+NIL	src/scanner/TokenType.ts	/^  NIL,$/;"	e	enum:TokenType
+NUMBER	src/scanner/TokenType.ts	/^  NUMBER,$/;"	e	enum:TokenType
+OR	src/scanner/TokenType.ts	/^  OR,$/;"	e	enum:TokenType
+PLUS	src/scanner/TokenType.ts	/^  PLUS,$/;"	e	enum:TokenType
+PRINT	src/scanner/TokenType.ts	/^  PRINT,$/;"	e	enum:TokenType
+ParseError	src/parser/ParseError.ts	/^export default class ParseError extends Error {$/;"	c
+Parser	src/parser/Parser.ts	/^export default class Parser {$/;"	c
+Print	src/stmt/Print.ts	/^export default class Print extends Stmt {$/;"	c
+QUESTIONMARK	src/scanner/TokenType.ts	/^  QUESTIONMARK,$/;"	e	enum:TokenType
+RETURN	src/scanner/TokenType.ts	/^  RETURN,$/;"	e	enum:TokenType
+RIGHT_BRACE	src/scanner/TokenType.ts	/^  RIGHT_BRACE,$/;"	e	enum:TokenType
+RIGHT_PAREN	src/scanner/TokenType.ts	/^  RIGHT_PAREN,$/;"	e	enum:TokenType
+RuntimeError	src/interpreter/RuntimeError.ts	/^export default class RuntimeError extends Error {$/;"	c
+SEMICOLON	src/scanner/TokenType.ts	/^  SEMICOLON,$/;"	e	enum:TokenType
+SLASH	src/scanner/TokenType.ts	/^  SLASH,$/;"	e	enum:TokenType
+STAR	src/scanner/TokenType.ts	/^  STAR,$/;"	e	enum:TokenType
+STRING	src/scanner/TokenType.ts	/^  STRING,$/;"	e	enum:TokenType
+SUPER	src/scanner/TokenType.ts	/^  SUPER,$/;"	e	enum:TokenType
+Scanner	src/scanner/Scanner.ts	/^export default class Scanner {$/;"	c
+Stmt	src/stmt/Stmt.ts	/^export default abstract class Stmt {$/;"	c
+THIS	src/scanner/TokenType.ts	/^  THIS,$/;"	e	enum:TokenType
+TRUE	src/scanner/TokenType.ts	/^  TRUE,$/;"	e	enum:TokenType
+Ternary	src/expr/Ternary.ts	/^export default class Ternary extends Expr {$/;"	c
+Token	src/scanner/Token.ts	/^export default class Token {$/;"	c
+TokenType	src/scanner/TokenType.ts	/^enum TokenType {$/;"	g
+Unary	src/expr/Unary.ts	/^export default class Unary extends Expr {$/;"	c
+VAR	src/scanner/TokenType.ts	/^  VAR,$/;"	e	enum:TokenType
+Visitor	src/expr/Visitor.ts	/^export default interface Visitor<T> {$/;"	i
+Visitor	src/stmt/Visitor.ts	/^export default interface Visitor<T> {$/;"	i
+WHILE	src/scanner/TokenType.ts	/^  WHILE$/;"	e	enum:TokenType
+accept	src/expr/Binary.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Binary
+accept	src/expr/Expr.ts	/^  abstract accept<T>(visitor: Visitor<T>) : T;$/;"	m	class:Expr
+accept	src/expr/Grouping.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Grouping
+accept	src/expr/Literal.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Literal
+accept	src/expr/Ternary.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Ternary
+accept	src/expr/Unary.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Unary
+accept	src/stmt/Expression.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Expression
+accept	src/stmt/Print.ts	/^  accept<T>(visitor: Visitor<T>): T {$/;"	m	class:Print
+accept	src/stmt/Stmt.ts	/^  abstract accept<T>(visitor: Visitor<T>) : T;$/;"	m	class:Stmt
+addToken	src/scanner/Scanner.ts	/^  private addToken(type: TokenType, literal?: string | number): void {$/;"	m	class:Scanner
+addition	src/parser/Parser.ts	/^  private addition(): Expr {$/;"	m	class:Parser
+advance	src/parser/Parser.ts	/^  private advance(): Token {$/;"	m	class:Parser
+advance	src/scanner/Scanner.ts	/^  private advance(): string {$/;"	m	class:Scanner
+astPrinter	src/Lox.ts	/^    const astPrinter = new AstPrinter();$/;"	C
+binaryExpression	src/parser/Parser.ts	/^  private binaryExpression($/;"	m	class:Parser
+c	src/scanner/Scanner.ts	/^    const c = this.advance();$/;"	C	method:Scanner.scanToken
+check	src/parser/Parser.ts	/^  private check(type: TokenType): boolean {$/;"	m	class:Parser
+checkNumberOperands	src/interpreter/Interpreter.ts	/^  private checkNumberOperands($/;"	m	class:Interpreter
+comma	src/parser/Parser.ts	/^  private comma(): Expr {$/;"	m	class:Parser
+comparison	src/parser/Parser.ts	/^  private comparison(): Expr {$/;"	m	class:Parser
+cond	src/expr/Ternary.ts	/^  cond: Expr;$/;"	p	class:Ternary
+cond	src/interpreter/Interpreter.ts	/^    const cond = this.evaluate(expression.cond);$/;"	C	method:Interpreter.visitTernary
+condition	src/parser/Parser.ts	/^  private condition(): Expr {$/;"	m	class:Parser
+constructor	src/expr/Binary.ts	/^  constructor(left: Expr, operator: Token, right: Expr) {$/;"	m	class:Binary
+constructor	src/expr/Grouping.ts	/^  constructor(expression: Expr) {$/;"	m	class:Grouping
+constructor	src/expr/Literal.ts	/^  constructor(value: string | number | boolean | null) {$/;"	m	class:Literal
+constructor	src/expr/Ternary.ts	/^  constructor(cond: Expr, first: Token, left: Expr, second: Token, right: Expr) {$/;"	m	class:Ternary
+constructor	src/expr/Unary.ts	/^  constructor(operator: Token, expression: Expr) {$/;"	m	class:Unary
+constructor	src/interpreter/RuntimeError.ts	/^  constructor(token: Token, message: string) {$/;"	m	class:RuntimeError
+constructor	src/parser/ParseError.ts	/^  constructor() {$/;"	m	class:ParseError
+constructor	src/parser/Parser.ts	/^  constructor(tokens: Token[]) {$/;"	m	class:Parser
+constructor	src/scanner/Scanner.ts	/^  constructor(source: string) {$/;"	m	class:Scanner
+constructor	src/scanner/Token.ts	/^  constructor($/;"	m	class:Token
+constructor	src/stmt/Expression.ts	/^  constructor(expression: Expr) {$/;"	m	class:Expression
+constructor	src/stmt/Print.ts	/^  constructor(expression: Expr) {$/;"	m	class:Print
+consume	src/parser/Parser.ts	/^  private consume(type: TokenType, message: string): Token {$/;"	m	class:Parser
+contents	src/Lox.ts	/^    const contents = await fs.readFile(path, { encoding: "utf-8" });$/;"	C
+current	src/parser/Parser.ts	/^  private current = 0;$/;"	p	class:Parser
+current	src/scanner/Scanner.ts	/^  private current = 0;$/;"	p	class:Scanner
+equality	src/parser/Parser.ts	/^  private equality(): Expr {$/;"	m	class:Parser
+error	src/parser/Parser.ts	/^  private error(token: Token, message: string): Error {$/;"	m	class:Parser
+errorProduction	src/parser/Parser.ts	/^  private errorProduction(handle: ExpressionF, ...types: TokenType[]): boolean {$/;"	m	class:Parser
+evaluate	src/interpreter/Interpreter.ts	/^  private evaluate(expression: Expr): LiteralValue {$/;"	m	class:Interpreter
+expr	src/AstPrinter.ts	/^    for (const expr of exprs) {$/;"	C	method:AstPrinter.parenthesize
+expr	src/Lox.ts	/^    const expr = parser.parse();$/;"	C
+expr	src/parser/Parser.ts	/^      const expr = this.expression();$/;"	C	method:Parser.primary
+expression	src/AstPrinter.ts	/^    const expression = new Binary($/;"	C	method:AstPrinter.main
+expression	src/expr/Grouping.ts	/^  expression: Expr;$/;"	p	class:Grouping
+expression	src/expr/Unary.ts	/^  expression: Expr;$/;"	p	class:Unary
+expression	src/parser/Parser.ts	/^  private expression(): Expr {$/;"	m	class:Parser
+expression	src/stmt/Expression.ts	/^  expression: Expr;$/;"	p	class:Expression
+expression	src/stmt/Print.ts	/^  expression: Expr;$/;"	p	class:Print
+first	src/expr/Ternary.ts	/^  first: Token;$/;"	p	class:Ternary
+firstOp	src/parser/Parser.ts	/^      const firstOp = this.previous();$/;"	C	method:Parser.condition
+getAlpha	src/scanner/Scanner.ts	/^  private getAlpha(c: string): string | undefined {$/;"	m	class:Scanner
+getDigit	src/scanner/Scanner.ts	/^  private getDigit(c: string): string | undefined {$/;"	m	class:Scanner
+hadError	src/Lox.ts	/^  static hadError = false;$/;"	p	class:Lox
+hadRuntimeError	src/Lox.ts	/^  static hadRuntimeError = false;$/;"	p	class:Lox
+identifier	src/scanner/Scanner.ts	/^  private identifier(): void {$/;"	m	class:Scanner
+interpret	src/interpreter/Interpreter.ts	/^  interpret(expression: Expr): void {$/;"	m	class:Interpreter
+interpreter	src/Lox.ts	/^  private static interpreter = new Interpreter();$/;"	p	class:Lox
+isAlpha	src/scanner/Scanner.ts	/^  private isAlpha(c: string): boolean {$/;"	m	class:Scanner
+isAlphaNumeric	src/scanner/Scanner.ts	/^  private isAlphaNumeric(c: string): boolean {$/;"	m	class:Scanner
+isAtEnd	src/parser/Parser.ts	/^  private isAtEnd(): boolean {$/;"	m	class:Parser
+isAtEnd	src/scanner/Scanner.ts	/^  private isAtEnd(): boolean {$/;"	m	class:Scanner
+isBoolean	src/interpreter/Interpreter.ts	/^  private isBoolean(val: LiteralValue): boolean {$/;"	m	class:Interpreter
+isDigit	src/scanner/Scanner.ts	/^  private isDigit(c: string): boolean {$/;"	m	class:Scanner
+isEqual	src/interpreter/Interpreter.ts	/^  private isEqual(a: LiteralValue, b: LiteralValue): boolean {$/;"	m	class:Interpreter
+isNumber	src/interpreter/Interpreter.ts	/^  private isNumber(val: LiteralValue): boolean {$/;"	m	class:Interpreter
+isString	src/interpreter/Interpreter.ts	/^  private isString(val: LiteralValue): boolean {$/;"	m	class:Interpreter
+isTruthy	src/interpreter/Interpreter.ts	/^  private isTruthy(val: LiteralValue): boolean {$/;"	m	class:Interpreter
+keyword	src/scanner/Scanner.ts	/^    const keyword = TokenType[text.toUpperCase() as keyof typeof TokenType];$/;"	C	method:Scanner.identifier
+left	src/expr/Binary.ts	/^  left: Expr;$/;"	p	class:Binary
+left	src/expr/Ternary.ts	/^  left: Expr;$/;"	p	class:Ternary
+left	src/interpreter/Interpreter.ts	/^    const left = this.evaluate(expression.left);$/;"	C	method:Interpreter.visitBinary
+left	src/parser/Parser.ts	/^      const left = this.expression();$/;"	C	method:Parser.condition
+lexeme	src/scanner/Token.ts	/^  lexeme: string;$/;"	p	class:Token
+line	src/Lox.ts	/^      const line = lineOrToken;$/;"	C
+line	src/scanner/Scanner.ts	/^  private line = 1;$/;"	p	class:Scanner
+line	src/scanner/Token.ts	/^  line: number;$/;"	p	class:Token
+literal	src/scanner/Token.ts	/^  literal: string | number | null;$/;"	p	class:Token
+main	src/AstPrinter.ts	/^  static main(): void {$/;"	m	class:AstPrinter
+main	src/index.ts	/^function main(args: string[]): void {$/;"	f
+match	src/parser/Parser.ts	/^  private match(...types: TokenType[]): boolean {$/;"	m	class:Parser
+match	src/scanner/Scanner.ts	/^  private match(expected: string): boolean {$/;"	m	class:Scanner
+multiplication	src/parser/Parser.ts	/^  private multiplication(): Expr {$/;"	m	class:Parser
+name	src/AstPrinter.ts	/^    const name = expr.first.lexeme + expr.second.lexeme$/;"	C	method:AstPrinter.visitTernary
+numberToken	src/scanner/Scanner.ts	/^  private numberToken(): void {$/;"	m	class:Scanner
+operator	src/expr/Binary.ts	/^  operator: Token;$/;"	p	class:Binary
+operator	src/expr/Unary.ts	/^  operator: Token;$/;"	p	class:Unary
+operator	src/parser/Parser.ts	/^      const operator = this.previous();$/;"	C	method:Parser.binaryExpression
+operator	src/parser/Parser.ts	/^      const operator = this.previous();$/;"	C	method:Parser.unary
+parenthesize	src/AstPrinter.ts	/^  private parenthesize(name: string, ...exprs: Expr[]): string {$/;"	m	class:AstPrinter
+parse	src/parser/Parser.ts	/^  parse(): Expr | null {$/;"	m	class:Parser
+parser	src/Lox.ts	/^    const parser = new Parser(tokens);$/;"	C
+peek	src/parser/Parser.ts	/^  private peek(): Token {$/;"	m	class:Parser
+peek	src/scanner/Scanner.ts	/^  private peek(): string {$/;"	m	class:Scanner
+peekNext	src/scanner/Scanner.ts	/^  private peekNext(): string {$/;"	m	class:Scanner
+previous	src/parser/Parser.ts	/^  private previous(): Token {$/;"	m	class:Parser
+primary	src/parser/Parser.ts	/^  private primary(): Expr {$/;"	m	class:Parser
+print	src/AstPrinter.ts	/^  print(expr: Expr): string {$/;"	m	class:AstPrinter
+processLine	src/Lox.ts	/^    function processLine(line: string): void {$/;"	f
+right	src/expr/Binary.ts	/^  right: Expr;$/;"	p	class:Binary
+right	src/expr/Ternary.ts	/^  right: Expr;$/;"	p	class:Ternary
+right	src/interpreter/Interpreter.ts	/^    const right = this.evaluate(expression.expression);$/;"	C	method:Interpreter.visitUnary
+right	src/interpreter/Interpreter.ts	/^    const right = this.evaluate(expression.right);$/;"	C	method:Interpreter.visitBinary
+right	src/parser/Parser.ts	/^        const right = this.condition();$/;"	C	method:Parser.condition
+right	src/parser/Parser.ts	/^      const right = handle();$/;"	C	method:Parser.binaryExpression
+right	src/parser/Parser.ts	/^      const right = this.unary();$/;"	C	method:Parser.unary
+rl	src/Lox.ts	/^    const rl = readline.createInterface(process.stdin, process.stdout);$/;"	C
+scanToken	src/scanner/Scanner.ts	/^  private scanToken(): void {$/;"	m	class:Scanner
+scanTokens	src/scanner/Scanner.ts	/^  scanTokens(): Token[] {$/;"	m	class:Scanner
+scanner	src/Lox.ts	/^    const scanner = new Scanner(source);$/;"	C
+second	src/expr/Ternary.ts	/^  second: Token;$/;"	p	class:Ternary
+secondOp	src/parser/Parser.ts	/^        const secondOp = this.previous();$/;"	C	method:Parser.condition
+source	src/scanner/Scanner.ts	/^  private source: string;$/;"	p	class:Scanner
+start	src/scanner/Scanner.ts	/^  private start = 0;$/;"	p	class:Scanner
+stringToken	src/scanner/Scanner.ts	/^  private stringToken(): void {$/;"	m	class:Scanner
+stringify	src/interpreter/Interpreter.ts	/^  private stringify(val: LiteralValue): string {$/;"	m	class:Interpreter
+text	src/scanner/Scanner.ts	/^    const keyword = TokenType[text.toUpperCase() as keyof typeof TokenType];$/;"	C	method:Scanner.identifier
+text	src/scanner/Scanner.ts	/^    const text = this.source.substring(this.start + 1, this.current - 1);$/;"	C	method:Scanner.stringToken
+text	src/scanner/Scanner.ts	/^    const text = this.source.substring(this.start, this.current);$/;"	C	method:Scanner.addToken
+text	src/scanner/Scanner.ts	/^    const text = this.source.substring(this.start, this.current);$/;"	C	method:Scanner.identifier
+text	src/scanner/Scanner.ts	/^    const text = this.source.substring(this.start, this.current);$/;"	C	method:Scanner.numberToken
+toString	src/scanner/Token.ts	/^  toString(): string {$/;"	m	class:Token
+token	src/Lox.ts	/^      const token = lineOrToken;$/;"	C
+token	src/interpreter/RuntimeError.ts	/^  token: Token;$/;"	p	class:RuntimeError
+tokens	src/Lox.ts	/^    const tokens = scanner.scanTokens();$/;"	C
+tokens	src/parser/Parser.ts	/^  private tokens: Token[];$/;"	p	class:Parser
+tokens	src/scanner/Scanner.ts	/^  private tokens: Token[];$/;"	p	class:Scanner
+type	src/parser/Parser.ts	/^    for (const type of types) {$/;"	C	method:Parser.match
+type	src/scanner/Token.ts	/^  type: TokenType;$/;"	p	class:Token
+unary	src/parser/Parser.ts	/^  private unary(): Expr {$/;"	m	class:Parser
+value	src/expr/Literal.ts	/^  value: string | number | boolean | null;$/;"	p	class:Literal
+value	src/interpreter/Interpreter.ts	/^      const value = this.evaluate(expression);$/;"	C	method:Interpreter.interpret
+visitBinary	src/AstPrinter.ts	/^  visitBinary(expr: Binary): string {$/;"	m	class:AstPrinter
+visitBinary	src/expr/Visitor.ts	/^  visitBinary(expression: Binary): T;$/;"	m	interface:Visitor
+visitBinary	src/interpreter/Interpreter.ts	/^  visitBinary(expression: Binary): LiteralValue {$/;"	m	class:Interpreter
+visitExpression	src/stmt/Visitor.ts	/^  visitExpression(statement: Expression): T;$/;"	m	interface:Visitor
+visitGrouping	src/AstPrinter.ts	/^  visitGrouping(expr: Grouping): string {$/;"	m	class:AstPrinter
+visitGrouping	src/expr/Visitor.ts	/^  visitGrouping(expression: Grouping): T;$/;"	m	interface:Visitor
+visitGrouping	src/interpreter/Interpreter.ts	/^  visitGrouping(expression: Grouping): LiteralValue {$/;"	m	class:Interpreter
+visitLiteral	src/AstPrinter.ts	/^  visitLiteral(expr: Literal): string {$/;"	m	class:AstPrinter
+visitLiteral	src/expr/Visitor.ts	/^  visitLiteral(expression: Literal): T;$/;"	m	interface:Visitor
+visitLiteral	src/interpreter/Interpreter.ts	/^  visitLiteral(expression: Literal): LiteralValue {$/;"	m	class:Interpreter
+visitPrint	src/stmt/Visitor.ts	/^  visitPrint(statement: Print): T;$/;"	m	interface:Visitor
+visitTernary	src/AstPrinter.ts	/^  visitTernary(expr: Ternary): string {$/;"	m	class:AstPrinter
+visitTernary	src/expr/Visitor.ts	/^  visitTernary(expression: Ternary): T;$/;"	m	interface:Visitor
+visitTernary	src/interpreter/Interpreter.ts	/^  visitTernary(expression: Ternary): LiteralValue {$/;"	m	class:Interpreter
+visitUnary	src/AstPrinter.ts	/^  visitUnary(expr: Unary): string {$/;"	m	class:AstPrinter
+visitUnary	src/expr/Visitor.ts	/^  visitUnary(expression: Unary): T;$/;"	m	interface:Visitor
+visitUnary	src/interpreter/Interpreter.ts	/^  visitUnary(expression: Unary): LiteralValue {$/;"	m	class:Interpreter

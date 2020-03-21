@@ -13,6 +13,7 @@ export default class Lox {
   static hadError = false;
   static hadRuntimeError = false;
   private static interpreter = new Interpreter();
+  private static astPrinter = new AstPrinter();
 
   static async runScript(path: string): Promise<void> {
     const contents = await fs.readFile(path, { encoding: "utf-8" });
@@ -49,12 +50,10 @@ export default class Lox {
     const parser = new Parser(tokens);
     const expr = parser.parse();
 
-    const astPrinter = new AstPrinter();
-
     if (this.hadError) {
       return;
     } else if (expr !== null) {
-      console.log(astPrinter.print(expr));
+      console.log(this.astPrinter.print(expr));
       this.interpreter.interpret(expr);
     }
   }

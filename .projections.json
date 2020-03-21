@@ -1,7 +1,7 @@
 {
   "*": {
-    "console": "node",
-    "start": "make run",
+    "console": "make run",
+    "start": "make watch",
     "make": "make build"
   },
   "src/*.ts": {

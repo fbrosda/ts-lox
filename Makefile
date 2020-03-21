@@ -1,13 +1,17 @@
 .PHONY: all run build clean
 
-all: build 
+all: run 
+
+run:
+	node bin/index.js
 
 build:
 	npm i
 	npx tsc --build src/tsconfig.json
 
-run:
-	node bin/index.js
+watch:
+	npm i
+	npx tsc --build src/tsconfig.json --watch
 
 clean:
 	rm -rf bin/
