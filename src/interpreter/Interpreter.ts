@@ -1,5 +1,5 @@
 import Lox from "../Lox.js";
-import Visitor from "../expr/Visitor.js";
+import ExprVisitor from "../expr/Visitor.js";
 import Expr from "../expr/Expr.js";
 import Ternary from "../expr/Ternary.js";
 import Binary from "../expr/Binary.js";
@@ -9,14 +9,20 @@ import Literal from "../expr/Literal.js";
 import TokenType from "../scanner/TokenType.js";
 import Token from "../scanner/Token.js";
 import RuntimeError from "../interpreter/RuntimeError.js";
+import StmtVisitor from "../stmt/Visitor.js";
+import Stmt from "../stmt/Stmt.js";
+import Expression from "../stmt/Expression.js";
+import Print from "../stmt/Print.js";
 
 type LiteralValue = string | number | boolean | null;
 
-export default class Interpreter implements Visitor<LiteralValue> {
-  interpret(expression: Expr): void {
+export default class Interpreter
+  implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
+  interpret(statements: Stmt[]): void {
     try {
-      const value = this.evaluate(expression);
-      console.log(this.stringify(value));
+      for (const statement of statements) {
+        this.execute(statement);
+      }
     } catch (e) {
       if (e instanceof RuntimeError) {
         Lox.runtimeError(e);
@@ -24,6 +30,15 @@ export default class Interpreter implements Visitor<LiteralValue> {
         throw e;
       }
     }
+  }
+
+  visitExpression(statement: Expression): void {
+    this.evaluate(statement.expression);
+  }
+
+  visitPrint(statement: Print): void {
+    const value = this.evaluate(statement.expression);
+    console.log(this.stringify(value));
   }
 
   visitLiteral(expression: Literal): LiteralValue {
@@ -115,6 +130,10 @@ export default class Interpreter implements Visitor<LiteralValue> {
 
   private evaluate(expression: Expr): LiteralValue {
     return expression.accept(this);
+  }
+
+  private execute(statement: Stmt): void {
+    return statement.accept(this);
   }
 
   private checkNumberOperands(

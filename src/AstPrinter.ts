@@ -1,5 +1,5 @@
 import Expr from "./expr/Expr.js";
-import Visitor from "./expr/Visitor.js";
+import ExprVisitor from "./expr/Visitor.js";
 import Ternary from "./expr/Ternary.js";
 import Binary from "./expr/Binary.js";
 import Grouping from "./expr/Grouping.js";
@@ -7,14 +7,33 @@ import Literal from "./expr/Literal.js";
 import Unary from "./expr/Unary.js";
 import Token from "./scanner/Token.js";
 import TokenType from "./scanner/TokenType.js";
+import StmtVisitor from "./stmt/Visitor.js";
+import Stmt from "./stmt/Stmt.js";
+import Expression from "./stmt/Expression.js";
+import Print from "./stmt/Print.js";
 
-export default class AstPrinter implements Visitor<string> {
-  print(expr: Expr): string {
-    return expr.accept(this);
+export default class AstPrinter
+  implements ExprVisitor<string>, StmtVisitor<string> {
+  print(statements: Stmt[]): string {
+    let ret = "";
+    for (const statement of statements) {
+      ret += statement.accept(this);
+    }
+    return ret;
+  }
+
+  visitExpression(statement: Expression): string {
+    const val = statement.expression.accept(this);
+    return `${val};\n`;
+  }
+
+  visitPrint(statement: Print): string {
+    const val = statement.expression.accept(this);
+    return `PRINT ${val};\n`;
   }
 
   visitTernary(expr: Ternary): string {
-    const name = expr.first.lexeme + expr.second.lexeme
+    const name = expr.first.lexeme + expr.second.lexeme;
     return this.parenthesize(name, expr.cond, expr.left, expr.right);
   }
 
@@ -55,6 +74,7 @@ export default class AstPrinter implements Visitor<string> {
       new Grouping(new Literal(45.67))
     );
 
-    console.log(new AstPrinter().print(expression));
+    const statements = [new Expression(expression)];
+    console.log(new AstPrinter().print(statements));
   }
 }

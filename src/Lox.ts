@@ -1,13 +1,12 @@
 import { promises as fs } from "fs";
 import * as readline from "readline";
-
 import AstPrinter from "./AstPrinter.js";
+import Interpreter from "./interpreter/Interpreter.js";
+import RuntimeError from "./interpreter/RuntimeError.js";
+import Parser from "./parser/Parser.js";
 import Scanner from "./scanner/Scanner.js";
 import Token from "./scanner/Token.js";
 import TokenType from "./scanner/TokenType.js";
-import Parser from "./parser/Parser.js";
-import Interpreter from "./interpreter/Interpreter.js";
-import RuntimeError from "./interpreter/RuntimeError.js";
 
 export default class Lox {
   static hadError = false;
@@ -48,13 +47,13 @@ export default class Lox {
     const tokens = scanner.scanTokens();
 
     const parser = new Parser(tokens);
-    const expr = parser.parse();
+    const statements = parser.parse();
 
     if (this.hadError) {
       return;
-    } else if (expr !== null) {
-      console.log(this.astPrinter.print(expr));
-      this.interpreter.interpret(expr);
+    } else if (statements !== null) {
+      console.log(this.astPrinter.print(statements));
+      this.interpreter.interpret(statements);
     }
   }
 

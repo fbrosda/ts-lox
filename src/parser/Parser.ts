@@ -8,6 +8,9 @@ import Binary from "../expr/Binary.js";
 import Unary from "../expr/Unary.js";
 import Literal from "../expr/Literal.js";
 import Grouping from "../expr/Grouping.js";
+import Stmt from "../stmt/Stmt.js";
+import Print from "../stmt/Print.js";
+import Expression from "../stmt/Expression.js";
 
 interface ExpressionF {
   (): Expr;
@@ -21,15 +24,31 @@ export default class Parser {
     this.tokens = tokens;
   }
 
-  parse(): Expr | null {
-    try {
-      return this.expression();
-    } catch (e) {
-      if (e instanceof ParseError) {
-        return null;
-      }
-      throw e;
+  parse(): Stmt[] | null {
+    const statements = [];
+    while (!this.isAtEnd()) {
+      statements.push(this.statement());
     }
+    return statements;
+  }
+
+  private statement(): Stmt {
+    if (this.match(TokenType.PRINT)) {
+      return this.printStatement();
+    }
+    return this.expressionStatement();
+  }
+
+  private printStatement(): Stmt {
+    const value = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Print(value);
+  }
+
+  private expressionStatement(): Stmt {
+    const value = this.expression();
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    return new Expression(value);
   }
 
   private expression(): Expr {
