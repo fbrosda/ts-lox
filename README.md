@@ -3,16 +3,14 @@
 Implementation of the Lox language from [Crafting
 Interpreters](https://www.craftinginterpreters.com/).
 
-## Structure
+# Setup
 
-The interpreter from the first part of the book is found in `interpreter/` and
-is implemented in javascript.
+Build the project with `make build`
 
-The virtual machine is found in `vm`, implemented in C and compiled to
-webassembly.
+To start the REPL go to `./bin` and execute `node index.js`. A script can be
+executed with `node index.js <path-to-file>`
 
-`server` contains a simple node server, to deliver the files to the browser.
+Furthermore the AstPrinter from the book was enhanced and converted to a Scheme
+Transpiler, which generates executable scheme code. To transpile a script call
+`node index.js --scheme <path-to-file>`.
 
-## Run the project
-
-Start the server with `node index.js`
