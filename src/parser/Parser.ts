@@ -8,9 +8,12 @@ import Binary from "../expr/Binary.js";
 import Unary from "../expr/Unary.js";
 import Literal from "../expr/Literal.js";
 import Grouping from "../expr/Grouping.js";
+import Variable from "../expr/Variable.js";
 import Stmt from "../stmt/Stmt.js";
 import Print from "../stmt/Print.js";
 import Expression from "../stmt/Expression.js";
+import Var from "../stmt/Var.js";
+import Assign from "../expr/Assign.js";
 
 interface ExpressionF {
   (): Expr;
@@ -27,9 +30,41 @@ export default class Parser {
   parse(): Stmt[] | null {
     const statements = [];
     while (!this.isAtEnd()) {
-      statements.push(this.statement());
+      const statement = this.declaration();
+      if (statement) {
+        statements.push(statement);
+      }
     }
     return statements;
+  }
+
+  private declaration(): Stmt | null {
+    try {
+      if (this.match(TokenType.VAR)) {
+        return this.varDeclaration();
+      }
+      return this.statement();
+    } catch (e) {
+      if (e instanceof ParseError) {
+        this.synchronize();
+        return null;
+      } else {
+        throw e;
+      }
+    }
+  }
+
+  private varDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+    let initializer = null;
+    if (this.match(TokenType.EQUAL)) {
+      initializer = this.expression();
+    } else {
+      initializer = new Literal(null);
+    }
+    this.consumeSemicolon();
+    return new Var(name, initializer);
   }
 
   private statement(): Stmt {
@@ -41,18 +76,34 @@ export default class Parser {
 
   private printStatement(): Stmt {
     const value = this.expression();
-    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    this.consumeSemicolon();
     return new Print(value);
   }
 
   private expressionStatement(): Stmt {
     const value = this.expression();
-    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+    this.consumeSemicolon();
     return new Expression(value);
   }
 
   private expression(): Expr {
-    return this.condition();
+    return this.assignment();
+  }
+
+  private assignment(): Expr {
+    const expr = this.condition();
+    if (this.match(TokenType.EQUAL)) {
+      const equals = this.previous();
+      const value = this.assignment();
+
+      if (expr instanceof Variable) {
+        const name = (expr as Variable).name;
+        return new Assign(name, value);
+      }
+
+      this.error(equals, "Invalid assignemnt target.");
+    }
+    return expr;
   }
 
   private condition(): Expr {
@@ -135,6 +186,10 @@ export default class Parser {
       return new Literal(this.previous().literal);
     }
 
+    if (this.match(TokenType.IDENTIFIER)) {
+      return new Variable(this.previous());
+    }
+
     if (this.match(TokenType.LEFT_PAREN)) {
       const expr = this.expression();
       this.consume(TokenType.RIGHT_PAREN, "Expect ')' after expression");
@@ -209,6 +264,10 @@ export default class Parser {
     throw this.error(this.peek(), message);
   }
 
+  private consumeSemicolon(): void {
+    this.consume(TokenType.SEMICOLON, "Expect ';' after value.");
+  }
+
   private check(type: TokenType): boolean {
     if (this.isAtEnd()) {
       return false;
@@ -240,27 +299,27 @@ export default class Parser {
     return new ParseError();
   }
 
-  // private synchronize(): void {
-  //   this.advance();
+  private synchronize(): void {
+    this.advance();
 
-  //   while (!this.isAtEnd()) {
-  //     if (this.previous().type === TokenType.SEMICOLON) {
-  //       return;
-  //     }
+    while (!this.isAtEnd()) {
+      if (this.previous().type === TokenType.SEMICOLON) {
+        return;
+      }
 
-  //     switch (this.peek().type) {
-  //       case TokenType.CLASS:
-  //       case TokenType.FUN:
-  //       case TokenType.VAR:
-  //       case TokenType.FOR:
-  //       case TokenType.IF:
-  //       case TokenType.WHILE:
-  //       case TokenType.PRINT:
-  //       case TokenType.RETURN:
-  //         return;
-  //     }
+      switch (this.peek().type) {
+        case TokenType.CLASS:
+        case TokenType.FUN:
+        case TokenType.VAR:
+        case TokenType.FOR:
+        case TokenType.IF:
+        case TokenType.WHILE:
+        case TokenType.PRINT:
+        case TokenType.RETURN:
+          return;
+      }
 
-  //     this.advance();
-  //   }
-  // }
+      this.advance();
+    }
+  }
 }

@@ -1,23 +1,28 @@
-import Lox from "../Lox.js";
-import ExprVisitor from "../expr/Visitor.js";
-import Expr from "../expr/Expr.js";
-import Ternary from "../expr/Ternary.js";
 import Binary from "../expr/Binary.js";
-import Unary from "../expr/Unary.js";
+import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
-import TokenType from "../scanner/TokenType.js";
+import Ternary from "../expr/Ternary.js";
+import Unary from "../expr/Unary.js";
+import ExprVisitor from "../expr/Visitor.js";
+import Lox from "../Lox.js";
 import Token from "../scanner/Token.js";
-import RuntimeError from "../interpreter/RuntimeError.js";
-import StmtVisitor from "../stmt/Visitor.js";
-import Stmt from "../stmt/Stmt.js";
+import TokenType from "../scanner/TokenType.js";
 import Expression from "../stmt/Expression.js";
 import Print from "../stmt/Print.js";
-
-type LiteralValue = string | number | boolean | null;
+import Stmt from "../stmt/Stmt.js";
+import StmtVisitor from "../stmt/Visitor.js";
+import RuntimeError from ".//RuntimeError.js";
+import LiteralValue from "./LiteralValue.js";
+import Environment from "./Environment.js";
+import Var from "../stmt/Var.js";
+import Variable from "../expr/Variable.js";
+import Assign from "../expr/Assign.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
+  private environment = new Environment();
+
   interpret(statements: Stmt[]): void {
     try {
       for (const statement of statements) {
@@ -39,6 +44,11 @@ export default class Interpreter
   visitPrint(statement: Print): void {
     const value = this.evaluate(statement.expression);
     console.log(this.stringify(value));
+  }
+
+  visitVar(statement: Var): void {
+    const value = this.evaluate(statement.initializer);
+    this.environment.define(statement.name.lexeme, value);
   }
 
   visitLiteral(expression: Literal): LiteralValue {
@@ -126,6 +136,16 @@ export default class Interpreter
     } else {
       return this.evaluate(expression.right);
     }
+  }
+
+  visitVariable(expression: Variable): LiteralValue {
+    return this.environment.get(expression.name);
+  }
+
+  visitAssign(expression: Assign): LiteralValue {
+    const value = this.evaluate(expression.value);
+    this.environment.assign(expression.name, value);
+    return value;
   }
 
   private evaluate(expression: Expr): LiteralValue {

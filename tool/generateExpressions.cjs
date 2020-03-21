@@ -1,16 +1,18 @@
 const fs = require("fs").promises;
 
-const DIR = "../src/expr";
+const DIR = "./src/expr";
 const PAD = "  ";
 const EXPR = "Expr";
 const VISITOR = "Visitor";
 
 const TYPES = {
+  Assign: `Token: name, ${EXPR}: value`,
   Ternary: `${EXPR}: cond, Token: first, ${EXPR}: left, Token: second, ${EXPR}: right`,
   Binary: `${EXPR}: left, Token: operator, ${EXPR}: right`,
   Unary: `Token: operator, ${EXPR}: expression`,
   Grouping: `${EXPR}: expression`,
-  Literal: "string | number | boolean | null: value"
+  Literal: "string | number | boolean | null: value",
+  Variable: "Token: name"
 };
 
 generateExpressionClass();

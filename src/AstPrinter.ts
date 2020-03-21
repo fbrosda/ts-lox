@@ -11,9 +11,15 @@ import StmtVisitor from "./stmt/Visitor.js";
 import Stmt from "./stmt/Stmt.js";
 import Expression from "./stmt/Expression.js";
 import Print from "./stmt/Print.js";
+import Var from "./stmt/Var.js";
+import Variable from "./expr/Variable.js";
+import Environment from "./interpreter/Environment.js";
+import Assign from "./expr/Assign.js";
 
 export default class AstPrinter
   implements ExprVisitor<string>, StmtVisitor<string> {
+  private environment = new Environment();
+
   print(statements: Stmt[]): string {
     let ret = "";
     for (const statement of statements) {
@@ -29,7 +35,13 @@ export default class AstPrinter
 
   visitPrint(statement: Print): string {
     const val = statement.expression.accept(this);
-    return `PRINT ${val};\n`;
+    return `(display ${val}) (newline)\n`;
+  }
+
+  visitVar(statement: Var): string {
+    const val = statement.initializer.accept(this);
+    this.environment.define(statement.name.lexeme, val);
+    return `(define ${statement.name.lexeme} ${val})\n`;
   }
 
   visitTernary(expr: Ternary): string {
@@ -54,6 +66,15 @@ export default class AstPrinter
 
   visitUnary(expr: Unary): string {
     return this.parenthesize(expr.operator.lexeme, expr.expression);
+  }
+
+  visitVariable(expr: Variable): string {
+    // const value = this.environment.get(expr.name);
+    return `${expr.name.lexeme}`;
+  }
+
+  visitAssign(expr: Assign): string {
+    return `(define ${expr.name.lexeme} ${expr.value.accept(this)})`;
   }
 
   private parenthesize(name: string, ...exprs: Expr[]): string {

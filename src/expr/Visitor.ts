@@ -1,3 +1,4 @@
+import Assign from "./Assign.js";
 import Ternary from "./Ternary.js";
 import Binary from "./Binary.js";
 import Unary from "./Unary.js";
@@ -6,6 +7,7 @@ import Literal from "./Literal.js";
 import Variable from "./Variable.js";
 
 export default interface Visitor<T> {
+  visitAssign(expression: Assign): T;
   visitTernary(expression: Ternary): T;
   visitBinary(expression: Binary): T;
   visitUnary(expression: Unary): T;

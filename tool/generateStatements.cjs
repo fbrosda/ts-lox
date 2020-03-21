@@ -1,14 +1,15 @@
 const fs = require("fs").promises;
 
-const DIR = "../src/stmt";
+const DIR = "./src/stmt";
 const PAD = "  ";
 const EXPR = "Expr";
 const STMT = "Stmt";
 const VISITOR = "Visitor";
 
 const TYPES = {
-  "Expression": `${EXPR}: expression`,
-  "Print": `${EXPR}: expression`,
+  Expression: `${EXPR}: expression`,
+  Print: `${EXPR}: expression`,
+  Var: `Token: name, ${EXPR}: initializer`
 };
 
 generateStatementClass();
