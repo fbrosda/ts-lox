@@ -52,6 +52,8 @@ export default class Interpreter
   }
 
   visitVar(statement: Var): void {
+    this.environment.mark(statement.name.lexeme);
+
     const value = this.evaluate(statement.initializer);
     this.environment.define(statement.name.lexeme, value);
   }

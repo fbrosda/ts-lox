@@ -2,9 +2,11 @@ import Token from "../scanner/Token.js";
 import LiteralValue from "./LiteralValue.js";
 import RuntimeError from "./RuntimeError.js";
 
+const INITIALIZER = Symbol.for("initializer");
+
 export default class Environment {
   private enclosing: Environment | null;
-  private values: Map<string, LiteralValue>;
+  private values: Map<string, LiteralValue | typeof INITIALIZER>;
 
   constructor(enclosing: Environment | null = null) {
     this.enclosing = enclosing;
@@ -15,11 +17,20 @@ export default class Environment {
     this.values.set(name, value);
   }
 
+  mark(name: string): void {
+    this.values.set(name, INITIALIZER);
+  }
+
   get(name: Token): LiteralValue {
     const varName = name.lexeme;
     const value = this.values.get(varName);
 
-    if (typeof value !== "undefined") {
+    if (value === INITIALIZER) {
+      throw new RuntimeError(
+        name,
+        `Using shadowed variable '${varName}' during initialization.`
+      );
+    } else if (typeof value !== "undefined") {
       return value;
     }
 
@@ -27,7 +38,7 @@ export default class Environment {
       return this.enclosing.get(name);
     }
 
-    throw new RuntimeError(name, `Undefined variable'${varName}'.'`);
+    throw new RuntimeError(name, `Undefined variable '${varName}'.'`);
   }
 
   assign(name: Token, value: LiteralValue): void {
