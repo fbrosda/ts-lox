@@ -1,20 +1,20 @@
-import Lox from "../Lox.js";
-import ParseError from "./ParseError.js";
-import TokenType from "../scanner/TokenType.js";
-import Token from "../scanner/Token.js";
-import Expr from "../expr/Expr.js";
-import Ternary from "../expr/Ternary.js";
-import Binary from "../expr/Binary.js";
-import Unary from "../expr/Unary.js";
-import Literal from "../expr/Literal.js";
-import Grouping from "../expr/Grouping.js";
-import Variable from "../expr/Variable.js";
-import Stmt from "../stmt/Stmt.js";
-import Print from "../stmt/Print.js";
-import Expression from "../stmt/Expression.js";
-import Var from "../stmt/Var.js";
 import Assign from "../expr/Assign.js";
+import Binary from "../expr/Binary.js";
+import Expr from "../expr/Expr.js";
+import Grouping from "../expr/Grouping.js";
+import Literal from "../expr/Literal.js";
+import Ternary from "../expr/Ternary.js";
+import Unary from "../expr/Unary.js";
+import Variable from "../expr/Variable.js";
+import Lox from "../Lox.js";
+import Token from "../scanner/Token.js";
+import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
+import Expression from "../stmt/Expression.js";
+import Print from "../stmt/Print.js";
+import Stmt from "../stmt/Stmt.js";
+import Var from "../stmt/Var.js";
+import ParseError from "./ParseError.js";
 
 interface ExpressionF {
   (): Expr;

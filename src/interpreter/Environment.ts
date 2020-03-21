@@ -1,5 +1,5 @@
-import LiteralValue from "./LiteralValue.js";
 import Token from "../scanner/Token.js";
+import LiteralValue from "./LiteralValue.js";
 import RuntimeError from "./RuntimeError.js";
 
 export default class Environment {
