@@ -3,6 +3,7 @@ import Binary from "../expr/Binary.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
+import Logical from "../expr/Logical.js";
 import Ternary from "../expr/Ternary.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
@@ -11,13 +12,12 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Expression from "../stmt/Expression.js";
+import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
-import ParseError from "./ParseError.js";
-import If from "../stmt/If.js";
-import Logical from "../expr/Logical.js";
 import While from "../stmt/While.js";
+import ParseError from "./ParseError.js";
 
 interface ExpressionF {
   (): Expr;
@@ -59,6 +59,9 @@ export default class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.FOR)) {
+      return this.forStatement();
+    }
     if (this.match(TokenType.IF)) {
       return this.ifStatement();
     }
@@ -72,6 +75,44 @@ export default class Parser {
       return new Block(this.block());
     }
     return this.expressionStatement();
+  }
+
+  private forStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+
+    let initializer;
+    if (this.match(TokenType.SEMICOLON)) {
+      initializer = null;
+    } else if (this.match(TokenType.VAR)) {
+      initializer = this.varDeclaration();
+    } else {
+      initializer = this.expressionStatement();
+    }
+
+    let condition;
+    if (this.match(TokenType.SEMICOLON)) {
+      condition = new Literal(true);
+    } else {
+      condition = this.expression();
+    }
+    this.consumeSemicolon();
+
+    let increment = null;
+    if (!this.match(TokenType.RIGHT_PAREN)) {
+      increment = this.expression();
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clause.");
+
+    let body = this.statement();
+    if (increment) {
+      body = new Block([body, new Expression(increment)]);
+    }
+    body = new While(condition, body);
+    if (initializer) {
+      body = new Block([initializer, body]);
+    }
+
+    return body;
   }
 
   private ifStatement(): Stmt {
@@ -182,11 +223,27 @@ export default class Parser {
   }
 
   private equality(): Expr {
-    return this.binaryExpression(
-      this.comparison.bind(this),
-      TokenType.BANG_EQUAL,
-      TokenType.EQUAL_EQUAL
-    );
+    let left = this.comparison();
+
+    while (this.match(TokenType.BANG_EQUAL, TokenType.EQUAL_EQUAL)) {
+      const operator = this.previous();
+      const right = this.comparison();
+      if (operator.type === TokenType.EQUAL_EQUAL) {
+        left = new Binary(left, operator, right);
+      } else {
+        // Transform a != b to !(a == b)
+        // Makes the transpiler a bit easier, as '!=' does not exist in scheme
+        operator.lexeme = "==";
+        operator.type = TokenType.EQUAL_EQUAL;
+
+        left = new Binary(left, operator, right);
+        left = new Unary(
+          new Token(TokenType.BANG, "!", null, operator.line),
+          left
+        );
+      }
+    }
+    return left;
   }
 
   private comparison(): Expr {
@@ -296,14 +353,14 @@ export default class Parser {
     handle: ExpressionF,
     ...operators: TokenType[]
   ): Expr {
-    let expr = handle();
+    let left = handle();
 
     while (this.match(...operators)) {
       const operator = this.previous();
       const right = handle();
-      expr = new ctor(expr, operator, right);
+      left = new ctor(left, operator, right);
     }
-    return expr;
+    return left;
   }
 
   private errorProduction(handle: ExpressionF, ...types: TokenType[]): boolean {

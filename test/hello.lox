@@ -1,11 +1,11 @@
+var a = 0;
+var b = 1;
 var i = 0;
-while( i < 10 ) {
-    if( i == 7 ) {
-        print "hello";
-    } else {
-        print i;
-    }
-    i = i + 1;
-    var i = 100;
-    print i;
+
+while (a < 10000) {
+  print "Fibonacci #" + (i < 10 ? "0" + i : i) + ": " + a;
+  var temp = a;
+  a = b;
+  b = temp + b;
+  i = i + 1;
 }

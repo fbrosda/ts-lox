@@ -3,6 +3,7 @@ import Binary from "../expr/Binary.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
+import Logical from "../expr/Logical.js";
 import Ternary from "../expr/Ternary.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
@@ -12,16 +13,15 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Expression from "../stmt/Expression.js";
+import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
+import While from "../stmt/While.js";
 import RuntimeError from ".//RuntimeError.js";
 import Environment from "./Environment.js";
 import LiteralValue from "./LiteralValue.js";
-import If from "../stmt/If.js";
-import Logical from "../expr/Logical.js";
-import While from "../stmt/While.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {

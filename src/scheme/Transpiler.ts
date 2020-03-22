@@ -3,6 +3,7 @@ import Binary from "../expr/Binary.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
+import Logical from "../expr/Logical.js";
 import Ternary from "../expr/Ternary.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
@@ -11,12 +12,11 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Expression from "../stmt/Expression.js";
+import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
-import If from "../stmt/If.js";
-import Logical from "../expr/Logical.js";
 import While from "../stmt/While.js";
 
 export default class Transpiler
@@ -24,6 +24,7 @@ export default class Transpiler
   private depth = 0;
   transpile(statements: Stmt[]): string {
     let ret = "";
+    ret += this.createAddHandler();
     for (const statement of statements) {
       ret += statement.accept(this);
     }
@@ -90,14 +91,8 @@ export default class Transpiler
       op = "eqv?";
     } else if (expr.operator.type == TokenType.COMMA) {
       op = "begin";
-    } else if (expr.operator.type == TokenType.BANG_EQUAL) {
-      expr.operator.type = TokenType.EQUAL_EQUAL;
-      expr.operator.lexeme = "==";
-      const ret = new Unary(
-        new Token(TokenType.BANG, "!", null, expr.operator.line),
-        expr
-      );
-      return ret.accept(this);
+    } else if (expr.operator.type == TokenType.PLUS) {
+      op = "add";
     } else {
       op = expr.operator.lexeme;
     }
@@ -158,6 +153,19 @@ export default class Transpiler
     ret += ")";
 
     return ret;
+  }
+
+  private createAddHandler(): string {
+    return `(define add
+  (lambda (l r)
+    (cond ((and (number? l) (number? r))
+           (+ l r))
+          ((or (string? l) (string? r))
+           (string-append
+             (format #f "~a" l)
+             (format #f "~a" r)))
+          (else (throw 'invalidArgs "must be either strings or numbers.")))))
+\n`;
   }
 
   private incIndent(): number {
