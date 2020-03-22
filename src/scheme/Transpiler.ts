@@ -95,7 +95,7 @@ export default class Transpiler
         op = "begin";
         break;
       case TokenType.PLUS:
-        op = "add";
+        op = "*add*";
         break;
       default:
         op = expr.operator.lexeme;
@@ -161,7 +161,7 @@ export default class Transpiler
   }
 
   private createAddHandler(): string {
-    return `(define add
+    return `(define *add*
   (lambda (l r)
     (cond ((and (number? l) (number? r))
            (+ l r))
