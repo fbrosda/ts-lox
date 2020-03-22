@@ -164,7 +164,7 @@ export default class Transpiler
            (string-append
              (format #f "~a" l)
              (format #f "~a" r)))
-          (else (throw 'invalidArgs "must be either strings or numbers.")))))
+          (else (throw 'invalidArgs "Operands must be either strings or numbers.")))))
 \n`;
   }
 
