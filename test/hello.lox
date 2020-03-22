@@ -1,3 +1,11 @@
-print "asdf";
-print "hi" or 2;
-print nil or "yes";
+var i = 0;
+while( i < 10 ) {
+    if( i == 7 ) {
+        print "hello";
+    } else {
+        print i;
+    }
+    i = i + 1;
+    var i = 100;
+    print i;
+}

@@ -11,7 +11,8 @@ const TYPES = {
   Expression: `${EXPR}: expression`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
   Print: `${EXPR}: expression`,
-  Var: `Token: name, ${EXPR}: initializer`
+  Var: `Token: name, ${EXPR}: initializer`,
+  While: `${EXPR}: condition, ${STMT}: body`
 };
 
 generateStatementClass();

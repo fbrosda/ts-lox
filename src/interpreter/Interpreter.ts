@@ -21,6 +21,7 @@ import Environment from "./Environment.js";
 import LiteralValue from "./LiteralValue.js";
 import If from "../stmt/If.js";
 import Logical from "../expr/Logical.js";
+import While from "../stmt/While.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -66,6 +67,12 @@ export default class Interpreter
 
     const value = this.evaluate(statement.initializer);
     this.environment.define(statement.name.lexeme, value);
+  }
+
+  visitWhile(statement: While): void {
+    while (this.isTruthy(this.evaluate(statement.condition))) {
+      this.execute(statement.body);
+    }
   }
 
   visitLiteral(expression: Literal): LiteralValue {

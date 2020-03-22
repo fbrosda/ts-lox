@@ -17,6 +17,7 @@ import Var from "../stmt/Var.js";
 import ParseError from "./ParseError.js";
 import If from "../stmt/If.js";
 import Logical from "../expr/Logical.js";
+import While from "../stmt/While.js";
 
 interface ExpressionF {
   (): Expr;
@@ -57,22 +58,15 @@ export default class Parser {
     }
   }
 
-  private varDeclaration(): Stmt {
-    const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
-
-    const initializer = this.match(TokenType.EQUAL)
-      ? this.expression()
-      : new Literal(null);
-    this.consumeSemicolon();
-    return new Var(name, initializer);
-  }
-
   private statement(): Stmt {
     if (this.match(TokenType.IF)) {
       return this.ifStatement();
     }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
+    }
+    if (this.match(TokenType.WHILE)) {
+      return this.whileStatement();
     }
     if (this.match(TokenType.LEFT_BRACE)) {
       return new Block(this.block());
@@ -97,6 +91,25 @@ export default class Parser {
     const value = this.expression();
     this.consumeSemicolon();
     return new Print(value);
+  }
+
+  private varDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
+
+    const initializer = this.match(TokenType.EQUAL)
+      ? this.expression()
+      : new Literal(null);
+    this.consumeSemicolon();
+    return new Var(name, initializer);
+  }
+
+  private whileStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+    const body = this.statement();
+
+    return new While(condition, body);
   }
 
   private expressionStatement(): Stmt {

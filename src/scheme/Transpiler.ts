@@ -17,6 +17,7 @@ import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import If from "../stmt/If.js";
 import Logical from "../expr/Logical.js";
+import While from "../stmt/While.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -42,33 +43,41 @@ export default class Transpiler
   visitIf(statement: If): string {
     let ret = `(if ${statement.condition.accept(this)}\n`;
 
-    this.depth += 1;
+    this.incIndent();
     ret += `${this.indent()}${statement.thenBranch.accept(this)}`;
 
     if (statement.elseBranch) {
       ret += `${this.indent()}${statement.elseBranch.accept(this)}`;
     }
-    this.depth -= 1;
-    ret = `${ret.slice(0, ret.length - 1)})\n`;
-
-    return ret;
+    return this.decIndent(ret);
   }
 
   visitBlock(statement: Block): string {
-    let ret = "(let ()\n";
-    this.depth += 1;
+    const startDepth = this.incIndent();
+    let ret = "((lambda ()\n";
     for (const stmt of statement.statements) {
       ret += this.indent();
       ret += stmt.accept(this);
     }
-    this.depth -= 1;
-    ret = `${ret.slice(0, ret.length - 1)})\n`;
-    return ret;
+    this.incIndent();
+    return this.decIndent(ret, this.depth - startDepth);
   }
 
   visitVar(statement: Var): string {
     const val = statement.initializer.accept(this);
-    return `(define ${statement.name.lexeme} ${val})\n`;
+    if (this.depth == 0) {
+      return `(define ${statement.name.lexeme} ${val})\n`;
+    }
+    this.incIndent();
+    return `(let ((${statement.name.lexeme} ${val}))\n`;
+  }
+
+  visitWhile(statement: While): string {
+    let ret = `(while ${statement.condition.accept(this)}\n`;
+
+    this.incIndent();
+    ret += `${this.indent()}${statement.body.accept(this)}`;
+    return this.decIndent(ret);
   }
 
   visitTernary(expr: Ternary): string {
@@ -137,7 +146,7 @@ export default class Transpiler
   }
 
   visitAssign(expr: Assign): string {
-    return `(define ${expr.name.lexeme} ${expr.value.accept(this)})`;
+    return `(set! ${expr.name.lexeme} ${expr.value.accept(this)})`;
   }
 
   private parenthesize(name: string, ...exprs: Expr[]): string {
@@ -148,6 +157,24 @@ export default class Transpiler
     }
     ret += ")";
 
+    return ret;
+  }
+
+  private incIndent(): number {
+    const prev = this.depth;
+    this.depth += 1;
+    return prev;
+  }
+
+  private decIndent(ret: string, count = 1): string {
+    let i = count;
+    ret = ret.slice(0, ret.length - 1);
+    while (i > 0) {
+      ret += ")";
+      this.depth -= 1;
+      i -= 1;
+    }
+    ret += "\n";
     return ret;
   }
 
