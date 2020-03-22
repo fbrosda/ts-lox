@@ -87,14 +87,19 @@ export default class Transpiler
 
   visitBinary(expr: Binary): string {
     let op;
-    if (expr.operator.type == TokenType.EQUAL_EQUAL) {
-      op = "eqv?";
-    } else if (expr.operator.type == TokenType.COMMA) {
-      op = "begin";
-    } else if (expr.operator.type == TokenType.PLUS) {
-      op = "add";
-    } else {
-      op = expr.operator.lexeme;
+    switch (expr.operator.type) {
+      case TokenType.EQUAL_EQUAL:
+        op = "eqv?";
+        break;
+      case TokenType.COMMA:
+        op = "begin";
+        break;
+      case TokenType.PLUS:
+        op = "add";
+        break;
+      default:
+        op = expr.operator.lexeme;
+        break;
     }
     return this.parenthesize(op, expr.left, expr.right);
   }
