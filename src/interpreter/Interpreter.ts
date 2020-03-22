@@ -20,6 +20,7 @@ import RuntimeError from ".//RuntimeError.js";
 import Environment from "./Environment.js";
 import LiteralValue from "./LiteralValue.js";
 import If from "../stmt/If.js";
+import Logical from "../expr/Logical.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -69,6 +70,20 @@ export default class Interpreter
 
   visitLiteral(expression: Literal): LiteralValue {
     return expression.value;
+  }
+
+  visitLogical(expression: Logical): LiteralValue {
+    const left = this.evaluate(expression.left);
+    if (expression.operator.type === TokenType.OR) {
+      if (this.isTruthy(left)) {
+        return left;
+      }
+    } else {
+      if (!this.isTruthy(left)) {
+        return left;
+      }
+    }
+    return this.evaluate(expression.right);
   }
 
   visitGrouping(expression: Grouping): LiteralValue {

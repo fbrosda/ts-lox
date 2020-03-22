@@ -16,6 +16,7 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import If from "../stmt/If.js";
+import Logical from "../expr/Logical.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -109,6 +110,12 @@ export default class Transpiler
       return `${expr.value ? "#t" : "#f"}`;
     }
     return expr.value.toString();
+  }
+
+  visitLogical(expr: Logical): string {
+    return `(${expr.operator.lexeme} ${expr.left.accept(
+      this
+    )} ${expr.right.accept(this)})`;
   }
 
   visitUnary(expr: Unary): string {

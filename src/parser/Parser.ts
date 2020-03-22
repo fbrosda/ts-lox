@@ -16,6 +16,7 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import ParseError from "./ParseError.js";
 import If from "../stmt/If.js";
+import Logical from "../expr/Logical.js";
 
 interface ExpressionF {
   (): Expr;
@@ -156,7 +157,15 @@ export default class Parser {
   }
 
   private comma(): Expr {
-    return this.binaryExpression(this.equality.bind(this), TokenType.COMMA);
+    return this.binaryExpression(this.or.bind(this), TokenType.COMMA);
+  }
+
+  private or(): Expr {
+    return this.logicalExpression(this.and.bind(this), TokenType.OR);
+  }
+
+  private and(): Expr {
+    return this.logicalExpression(this.equality.bind(this), TokenType.AND);
   }
 
   private equality(): Expr {
@@ -259,12 +268,27 @@ export default class Parser {
     handle: ExpressionF,
     ...operators: TokenType[]
   ): Expr {
+    return this.binaryOrLogicalExpression(Binary, handle, ...operators);
+  }
+
+  private logicalExpression(
+    handle: ExpressionF,
+    ...operators: TokenType[]
+  ): Expr {
+    return this.binaryOrLogicalExpression(Logical, handle, ...operators);
+  }
+
+  private binaryOrLogicalExpression(
+    ctor: typeof Binary | typeof Logical,
+    handle: ExpressionF,
+    ...operators: TokenType[]
+  ): Expr {
     let expr = handle();
 
     while (this.match(...operators)) {
       const operator = this.previous();
       const right = handle();
-      expr = new Binary(expr, operator, right);
+      expr = new ctor(expr, operator, right);
     }
     return expr;
   }
