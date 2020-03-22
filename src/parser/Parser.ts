@@ -15,6 +15,7 @@ import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import ParseError from "./ParseError.js";
+import If from "../stmt/If.js";
 
 interface ExpressionF {
   (): Expr;
@@ -66,6 +67,9 @@ export default class Parser {
   }
 
   private statement(): Stmt {
+    if (this.match(TokenType.IF)) {
+      return this.ifStatement();
+    }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
     }
@@ -73,6 +77,19 @@ export default class Parser {
       return new Block(this.block());
     }
     return this.expressionStatement();
+  }
+
+  private ifStatement(): Stmt {
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
+
+    const thenBranch = this.statement();
+    let elseBranch = null;
+    if (this.match(TokenType.ELSE)) {
+      elseBranch = this.statement();
+    }
+    return new If(condition, thenBranch, elseBranch);
   }
 
   private printStatement(): Stmt {

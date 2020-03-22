@@ -19,6 +19,7 @@ import StmtVisitor from "../stmt/Visitor.js";
 import RuntimeError from ".//RuntimeError.js";
 import Environment from "./Environment.js";
 import LiteralValue from "./LiteralValue.js";
+import If from "../stmt/If.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -45,6 +46,14 @@ export default class Interpreter
 
   visitExpression(statement: Expression): void {
     this.evaluate(statement.expression);
+  }
+
+  visitIf(statement: If): void {
+    if (this.isTruthy(this.evaluate(statement.condition))) {
+      this.execute(statement.thenBranch);
+    } else if (statement.elseBranch) {
+      this.execute(statement.elseBranch);
+    }
   }
 
   visitBlock(statement: Block): void {

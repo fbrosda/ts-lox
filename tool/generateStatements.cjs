@@ -9,6 +9,7 @@ const VISITOR = "Visitor";
 const TYPES = {
   Block: `${STMT}[]: statements`,
   Expression: `${EXPR}: expression`,
+  If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
   Print: `${EXPR}: expression`,
   Var: `Token: name, ${EXPR}: initializer`
 };

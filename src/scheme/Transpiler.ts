@@ -15,6 +15,7 @@ import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
+import If from "../stmt/If.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -27,25 +28,40 @@ export default class Transpiler
     return ret;
   }
 
-  visitExpression(statement: Expression): string {
-    const val = statement.expression.accept(this);
-    return `${val};\n`;
-  }
-
   visitPrint(statement: Print): string {
     const val = statement.expression.accept(this);
-    return `(display ${val}) (newline)\n`;
+    return `(begin (display ${val}) (newline))\n`;
+  }
+
+  visitExpression(statement: Expression): string {
+    const val = statement.expression.accept(this);
+    return `${val}\n`;
+  }
+
+  visitIf(statement: If): string {
+    let ret = `(if ${statement.condition.accept(this)}\n`;
+
+    this.depth += 1;
+    ret += `${this.indent()}${statement.thenBranch.accept(this)}`;
+
+    if (statement.elseBranch) {
+      ret += `${this.indent()}${statement.elseBranch.accept(this)}`;
+    }
+    this.depth -= 1;
+    ret = `${ret.slice(0, ret.length - 1)})\n`;
+
+    return ret;
   }
 
   visitBlock(statement: Block): string {
-    let ret = "((lambda ()\n";
+    let ret = "(let ()\n";
     this.depth += 1;
     for (const stmt of statement.statements) {
       ret += this.indent();
       ret += stmt.accept(this);
     }
     this.depth -= 1;
-    ret += `${this.indent()}))\n`;
+    ret = `${ret.slice(0, ret.length - 1)})\n`;
     return ret;
   }
 

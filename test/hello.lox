@@ -1,5 +1,19 @@
-var a = 1;
+var a = 2;
+var b = 3;
 {
-  var a = a + 2;
-  print a;
+    if( a < b ) 
+        print "true";
+    else
+        print "false";
+
+    {
+        var a = 20;
+        if( a < b ) 
+            print "true";
+    }
 }
+
+if( a < b ) 
+    print "true";
+else
+    print "false";
