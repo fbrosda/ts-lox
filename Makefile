@@ -1,17 +1,20 @@
-.PHONY: all run build clean
+.PHONY: all run build clean copy_scheme_files
 
 all: run 
 
 run:
 	node bin/index.js
 
-build:
+build: copy_scheme_files
 	npm i
 	npx tsc --build src/tsconfig.json
 
-watch:
+watch: copy_scheme_files
 	npm i
 	npx tsc --build src/tsconfig.json --watch
+
+copy_scheme_files:
+	cp src/scheme/*.scm bin/scheme
 
 clean:
 	rm -rf bin/

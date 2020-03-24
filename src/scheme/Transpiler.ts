@@ -1,3 +1,4 @@
+import { readFileSync } from "fs";
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
 import Expr from "../expr/Expr.js";
@@ -55,12 +56,11 @@ export default class Transpiler
 
   visitBlock(statement: Block): string {
     const startDepth = this.incIndent();
-    let ret = "((lambda ()\n";
+    let ret = "(let ()\n";
     for (const stmt of statement.statements) {
       ret += this.indent();
       ret += stmt.accept(this);
     }
-    this.incIndent();
     return this.decIndent(ret, this.depth - startDepth);
   }
 
@@ -161,16 +161,7 @@ export default class Transpiler
   }
 
   private createAddHandler(): string {
-    return `(define *add*
-  (lambda (l r)
-    (cond ((and (number? l) (number? r))
-           (+ l r))
-          ((or (string? l) (string? r))
-           (string-append
-             (format #f "~a" l)
-             (format #f "~a" r)))
-          (else (throw 'invalidArgs "Operands must be either strings or numbers.")))))
-\n`;
+    return this.loadSchemeFunction("add");
   }
 
   private incIndent(): number {
@@ -197,6 +188,12 @@ export default class Transpiler
       ret += "  ";
     }
     return ret;
+  }
+
+  private loadSchemeFunction(name: string): string {
+    const path = `scheme/${name}.scm`;
+    const contents = readFileSync(path, { encoding: "UTF-8" });
+    return contents;
   }
 
   static main(): void {
