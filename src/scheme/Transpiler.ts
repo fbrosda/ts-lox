@@ -26,45 +26,51 @@ import Return from "../stmt/Return.js";
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
   private depth = 0;
+
   transpile(statements: Stmt[]): string {
-    let ret = "";
-    ret += this.createAddHandler();
-    ret += this.createClockHandler();
-    ret += "\n";
+    let ret = this.writeHeader();
     for (const statement of statements) {
       ret += statement.accept(this);
     }
     return ret;
   }
 
+  prettyPrint(statements: Stmt[]): string {
+    let ret = "(use-modules (ice-9 pretty-print))\n";
+    ret += "(pretty-print '(";
+    ret += this.transpile(statements);
+    ret += "))";
+    return ret;
+  }
+
   visitBreak(): string {
-    return `(break)\n`;
+    return `(break)`;
   }
 
   visitExpression(statement: Expression): string {
     const val = statement.expression.accept(this);
-    return `${val}\n`;
+    return `${val}`;
   }
 
   visitFunc(statement: Func): string {
     let extraParen = 0;
     let ret;
     if (this.depth == 0) {
-      ret = `(define ${statement.name.lexeme}\n`;
+      ret = `(define ${statement.name.lexeme}`;
     } else {
-      ret = `(let ((${statement.name.lexeme}\n`;
+      ret = `(let ((${statement.name.lexeme}`;
       extraParen = 1;
     }
 
     const start = this.incIndent();
-    ret += `${this.indent()}(lambda (`;
+    ret += `(lambda (`;
     if (statement.params.length) {
       ret += statement.params.map(param => param.lexeme).join(" ");
     }
-    ret += " return)\n";
+    ret += " return)";
 
     this.incIndent();
-    ret += this.indent() + this.stringifyBlock(statement.body);
+    ret += this.stringifyBlock(statement.body);
 
     this.depth += extraParen;
     ret = this.decIndent(ret, this.depth - start);
@@ -74,13 +80,13 @@ export default class Transpiler
   }
 
   visitIf(statement: If): string {
-    let ret = `(if ${statement.condition.accept(this)}\n`;
+    let ret = `(if ${statement.condition.accept(this)}`;
 
     this.incIndent();
-    ret += `${this.indent()}${statement.thenBranch.accept(this)}`;
+    ret += `${statement.thenBranch.accept(this)}`;
 
     if (statement.elseBranch) {
-      ret += `${this.indent()}${statement.elseBranch.accept(this)}`;
+      ret += `${statement.elseBranch.accept(this)}`;
     }
     return this.decIndent(ret);
   }
@@ -89,44 +95,34 @@ export default class Transpiler
     return this.stringifyBlock(statement.statements);
   }
 
-  private stringifyBlock(statements: Stmt[]): string {
-    const startDepth = this.incIndent();
-    let ret = "(let ()\n";
-    for (const stmt of statements) {
-      ret += this.indent();
-      ret += stmt.accept(this);
-    }
-    return this.decIndent(ret, this.depth - startDepth);
-  }
-
   visitPrint(statement: Print): string {
     const val = statement.expression.accept(this);
-    return `(begin (display ${val}) (newline))\n`;
+    return `(begin (display ${val}) (newline))`;
   }
 
   visitReturn(statement: Return): string {
-    return `(return ${statement.value.accept(this)})\n`;
+    return `(return ${statement.value.accept(this)})`;
   }
 
   visitVar(statement: Var): string {
     const val = statement.initializer.accept(this);
     if (this.depth == 0) {
-      return `(define ${statement.name.lexeme} ${val})\n`;
+      return `(define ${statement.name.lexeme} ${val})`;
     }
     this.incIndent();
-    return `(let ((${statement.name.lexeme} ${val}))\n`;
+    return `(let ((${statement.name.lexeme} ${val}))`;
   }
 
   visitWhile(statement: While): string {
-    let ret = `(while ${statement.condition.accept(this)}\n`;
+    let ret = `(while ${statement.condition.accept(this)}`;
 
     this.incIndent();
-    ret += `${this.indent()}${statement.body.accept(this)}`;
+    ret += `${statement.body.accept(this)}`;
     return this.decIndent(ret);
   }
 
-  visitTernary(expr: Ternary): string {
-    return this.parenthesize("if", expr.cond, expr.left, expr.right);
+  visitAssign(expr: Assign): string {
+    return `(set! ${expr.name.lexeme} ${expr.value.accept(this)})`;
   }
 
   visitBinary(expr: Binary): string {
@@ -149,9 +145,9 @@ export default class Transpiler
   }
 
   visitCall(expr: Call): string {
-    let ret = "(call/cc (lambda (return)\n";
+    let ret = "(call/cc (lambda (return)";
     this.incIndent();
-    ret += `${this.indent()}(${expr.callee.accept(this)}`;
+    ret += `(${expr.callee.accept(this)}`;
     if (expr.args.length) {
       ret += " " + expr.args.map(arg => arg.accept(this)).join(" ");
     }
@@ -178,31 +174,25 @@ export default class Transpiler
   }
 
   visitLogical(expr: Logical): string {
-    return `(${expr.operator.lexeme} ${expr.left.accept(
-      this
-    )} ${expr.right.accept(this)})`;
+    return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+
+  visitTernary(expr: Ternary): string {
+    return this.parenthesize("if", expr.cond, expr.left, expr.right);
   }
 
   visitUnary(expr: Unary): string {
-    const right = expr.expression.accept(this);
-
-    switch (expr.operator.type) {
-      case TokenType.MINUS:
-        return `(- ${right})`;
-        break;
-      case TokenType.BANG:
-        return `(not ${right})`;
-        break;
+    let op;
+    if (expr.operator.type === TokenType.BANG) {
+      op = "not";
+    } else {
+      op = expr.operator.lexeme;
     }
-    return "";
+    return this.parenthesize(op, expr.expression);
   }
 
   visitVariable(expr: Variable): string {
     return `${expr.name.lexeme}`;
-  }
-
-  visitAssign(expr: Assign): string {
-    return `(set! ${expr.name.lexeme} ${expr.value.accept(this)})`;
   }
 
   private parenthesize(name: string, ...exprs: Expr[]): string {
@@ -216,6 +206,37 @@ export default class Transpiler
     return ret;
   }
 
+  private stringifyBlock(statements: Stmt[]): string {
+    const startDepth = this.incIndent();
+    let ret = "(let ()";
+    for (const stmt of statements) {
+      ret += stmt.accept(this);
+    }
+    return this.decIndent(ret, this.depth - startDepth);
+  }
+
+  private incIndent(): number {
+    const prev = this.depth;
+    this.depth += 1;
+    return prev;
+  }
+
+  private decIndent(ret: string, count = 1): string {
+    let i = count;
+    while (i > 0) {
+      ret += ")";
+      this.depth -= 1;
+      i -= 1;
+    }
+    return ret;
+  }
+
+  private writeHeader(): string {
+    let ret = this.createAddHandler();
+    ret += this.createClockHandler();
+    return ret;
+  }
+
   private createAddHandler(): string {
     return this.loadSchemeFunction("add");
   }
@@ -224,38 +245,10 @@ export default class Transpiler
     return this.loadSchemeFunction("clock");
   }
 
-  private incIndent(): number {
-    const prev = this.depth;
-    this.depth += 1;
-    // console.log("inc", prev, this.depth);
-    return prev;
-  }
-
-  private decIndent(ret: string, count = 1): string {
-    // console.log("dec", this.depth, this.depth - count);
-    let i = count;
-    ret = ret.slice(0, ret.length - 1);
-    while (i > 0) {
-      ret += ")";
-      this.depth -= 1;
-      i -= 1;
-    }
-    ret += "\n";
-    return ret;
-  }
-
-  private indent(): string {
-    let ret = "";
-    for (let i = this.depth; i > 0; i--) {
-      ret += "  ";
-    }
-    return ret;
-  }
-
   private loadSchemeFunction(name: string): string {
     const path = `scheme/${name}.scm`;
     const contents = readFileSync(path, { encoding: "UTF-8" });
-    return contents;
+    return contents.replace(/\n\s*/g, " ");
   }
 
   static main(): void {
