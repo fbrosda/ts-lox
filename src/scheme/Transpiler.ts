@@ -19,6 +19,7 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
+import Call from "../expr/Call.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -26,6 +27,7 @@ export default class Transpiler
   transpile(statements: Stmt[]): string {
     let ret = "";
     ret += this.createAddHandler();
+    ret += this.createClockHandler();
     for (const statement of statements) {
       ret += statement.accept(this);
     }
@@ -108,6 +110,15 @@ export default class Transpiler
     return this.parenthesize(op, expr.left, expr.right);
   }
 
+  visitCall(expr: Call): string {
+    let ret = `(${expr.callee.accept(this)}`;
+    if (expr.args.length) {
+      ret += expr.args.map(arg => arg.accept(this)).join(" ");
+    }
+    ret += ")";
+    return ret;
+  }
+
   visitGrouping(expr: Grouping): string {
     return expr.expression.accept(this);
   }
@@ -166,6 +177,10 @@ export default class Transpiler
 
   private createAddHandler(): string {
     return this.loadSchemeFunction("add");
+  }
+
+  private createClockHandler(): string {
+    return this.loadSchemeFunction("clock");
   }
 
   private incIndent(): number {

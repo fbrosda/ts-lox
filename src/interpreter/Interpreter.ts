@@ -1,5 +1,6 @@
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
+import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
@@ -22,10 +23,17 @@ import While from "../stmt/While.js";
 import RuntimeError from ".//RuntimeError.js";
 import Environment from "./Environment.js";
 import LiteralValue from "./LiteralValue.js";
+import Callable from "./Callable.js";
+import Clock from "./Clock.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
-  private environment = new Environment();
+  private globals = new Environment();
+  private environment = this.globals;
+
+  constructor() {
+    this.globals.define("clock", new Clock());
+  }
 
   interpret(statements: Stmt[]): void {
     try {
@@ -179,6 +187,28 @@ export default class Interpreter
     return null;
   }
 
+  visitCall(expression: Call): LiteralValue {
+    const callee = this.evaluate(expression.callee);
+    const args = [];
+    for (const arg of expression.args) {
+      args.push(this.evaluate(arg));
+    }
+
+    if (!this.isCallable(callee)) {
+      throw new RuntimeError(
+        expression.paren,
+        "Can only call functions and classes."
+      );
+    }
+    if (args.length != callee.arity()) {
+      throw new RuntimeError(
+        expression.paren,
+        `Expected ${callee.arity()} arguments but got ${args.length}.`
+      );
+    }
+    return callee.exec(this, args);
+  }
+
   visitTernary(expression: Ternary): LiteralValue {
     const cond = this.evaluate(expression.cond);
     if (this.isTruthy(cond)) {
@@ -255,6 +285,10 @@ export default class Interpreter
 
   private isString(val: LiteralValue): boolean {
     return typeof val === "string";
+  }
+
+  private isCallable(callee: LiteralValue): callee is Callable {
+    return !!(callee && (callee as Callable).exec);
   }
 
   private stringify(val: LiteralValue): string {

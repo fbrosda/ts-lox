@@ -8,6 +8,7 @@ const VISITOR = "Visitor";
 const TYPES = {
   Assign: `Token: name, ${EXPR}: value`,
   Binary: `${EXPR}: left, Token: operator, ${EXPR}: right`,
+  Call: `${EXPR}: callee, Token: paren, ${EXPR}[]: args`,
   Grouping: `${EXPR}: expression`,
   Literal: "string | number | boolean | null: value",
   Logical: `${EXPR}: left, Token: operator, ${EXPR}: right`,

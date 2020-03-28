@@ -1,3 +1,5 @@
-type LiteralValue = string | number | boolean | null;
+import Callable from "./Callable";
+
+type LiteralValue = Callable | string | number | boolean | null;
 
 export default LiteralValue;

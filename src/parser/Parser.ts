@@ -1,5 +1,6 @@
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
+import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
@@ -11,6 +12,7 @@ import Lox from "../Lox.js";
 import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
+import Break from "../stmt/Break.js";
 import Expression from "../stmt/Expression.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
@@ -18,8 +20,8 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import While from "../stmt/While.js";
 import ParseError from "./ParseError.js";
-import Break from "../stmt/Break.js";
 
+const MAX_ARGS_LENGTH = 255;
 interface ExpressionF {
   (): Expr;
 }
@@ -301,7 +303,39 @@ export default class Parser {
       return new Unary(operator, right);
     }
 
-    return this.primary();
+    return this.call();
+  }
+
+  private call(): Expr {
+    let expr = this.primary();
+    while (true) {
+      if (this.match(TokenType.LEFT_PAREN)) {
+        expr = this.finishCall(expr);
+      } else {
+        break;
+      }
+    }
+    return expr;
+  }
+
+  private finishCall(callee: Expr): Expr {
+    const args = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (args.length > MAX_ARGS_LENGTH) {
+          this.error(
+            this.peek(),
+            `Cannot have more than ${MAX_ARGS_LENGTH} arguments.`
+          );
+        }
+        args.push(this.expression());
+      } while (this.match(TokenType.COMMA));
+    }
+    const paren = this.consume(
+      TokenType.RIGHT_PAREN,
+      "Expect ')' after arguments."
+    );
+    return new Call(callee, paren, args);
   }
 
   private primary(): Expr {
