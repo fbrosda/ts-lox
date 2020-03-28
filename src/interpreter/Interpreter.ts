@@ -65,7 +65,7 @@ export default class Interpreter
   }
 
   visitFunc(statement: Func): void {
-    const func = new FuncInstance(statement);
+    const func = new FuncInstance(statement, this.environment);
     this.environment.define(statement.name.lexeme, func);
   }
 
