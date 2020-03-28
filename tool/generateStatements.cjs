@@ -10,6 +10,7 @@ const TYPES = {
   Block: `${STMT}[]: statements`,
   Break: ``,
   Expression: `${EXPR}: expression`,
+  Func: `Token: name, Token[]: params, ${STMT}[]: body`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
   Print: `${EXPR}: expression`,
   Var: `Token: name, ${EXPR}: initializer`,

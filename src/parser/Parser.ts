@@ -20,6 +20,7 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import While from "../stmt/While.js";
 import ParseError from "./ParseError.js";
+import Func from "../stmt/Func.js";
 
 const MAX_ARGS_LENGTH = 255;
 interface ExpressionF {
@@ -48,6 +49,9 @@ export default class Parser {
 
   private declaration(): Stmt | null {
     try {
+      if (this.match(TokenType.FUN)) {
+        return this.funcDeclaration("function");
+      }
       if (this.match(TokenType.VAR)) {
         return this.varDeclaration();
       }
@@ -84,12 +88,41 @@ export default class Parser {
     return this.expressionStatement();
   }
 
-  private breakStatement(): Stmt {
+  private breakStatement(): Break {
     if (this.loopDepth < 1) {
       this.error(this.previous(), "Unexpeted break statement.");
     }
     this.consumeSemicolon();
     return new Break();
+  }
+
+  private expressionStatement(): Expression {
+    const value = this.expression();
+    this.consumeSemicolon();
+    return new Expression(value);
+  }
+
+  private funcDeclaration(kind: string): Func {
+    const name = this.consume(TokenType.IDENTIFIER, `Expect ${kind} name.`);
+
+    this.consume(TokenType.LEFT_PAREN, `Expect '(' after ${kind} name.`);
+    const parameters = [];
+    if (!this.check(TokenType.RIGHT_PAREN)) {
+      do {
+        if (parameters.length > MAX_ARGS_LENGTH) {
+          this.error(this.peek(), "Cannot have more than 255 parameters.");
+        }
+        parameters.push(
+          this.consume(TokenType.IDENTIFIER, "Expect parameter name.")
+        );
+      } while (this.match(TokenType.COMMA));
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after parameters.");
+
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before ${kind} body.`);
+    const body = this.block();
+
+    return new Func(name, parameters, body);
   }
 
   private forStatement(): Stmt {
@@ -134,7 +167,7 @@ export default class Parser {
     }
   }
 
-  private ifStatement(): Stmt {
+  private ifStatement(): If {
     this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'if'.");
     const condition = this.expression();
     this.consume(TokenType.RIGHT_PAREN, "Expect ')' after if condition.");
@@ -147,13 +180,13 @@ export default class Parser {
     return new If(condition, thenBranch, elseBranch);
   }
 
-  private printStatement(): Stmt {
+  private printStatement(): Print {
     const value = this.expression();
     this.consumeSemicolon();
     return new Print(value);
   }
 
-  private varDeclaration(): Stmt {
+  private varDeclaration(): Var {
     const name = this.consume(TokenType.IDENTIFIER, "Expect variable name.");
 
     const initializer = this.match(TokenType.EQUAL)
@@ -163,7 +196,7 @@ export default class Parser {
     return new Var(name, initializer);
   }
 
-  private whileStatement(): Stmt {
+  private whileStatement(): While {
     this.loopDepth++;
     try {
       this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
@@ -175,12 +208,6 @@ export default class Parser {
     } finally {
       this.loopDepth--;
     }
-  }
-
-  private expressionStatement(): Stmt {
-    const value = this.expression();
-    this.consumeSemicolon();
-    return new Expression(value);
   }
 
   private block(): Stmt[] {
@@ -328,7 +355,7 @@ export default class Parser {
             `Cannot have more than ${MAX_ARGS_LENGTH} arguments.`
           );
         }
-        args.push(this.expression());
+        args.push(this.or());
       } while (this.match(TokenType.COMMA));
     }
     const paren = this.consume(

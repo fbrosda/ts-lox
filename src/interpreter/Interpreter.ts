@@ -14,6 +14,7 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Expression from "../stmt/Expression.js";
+import Func from "../stmt/Func.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
@@ -21,14 +22,15 @@ import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
 import RuntimeError from ".//RuntimeError.js";
-import Environment from "./Environment.js";
-import LiteralValue from "./LiteralValue.js";
 import Callable from "./Callable.js";
 import Clock from "./Clock.js";
+import Environment from "./Environment.js";
+import FuncInstance from "./FuncInstance.js";
+import LiteralValue from "./LiteralValue.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
-  private globals = new Environment();
+  globals = new Environment();
   private environment = this.globals;
 
   constructor() {
@@ -60,6 +62,11 @@ export default class Interpreter
 
   visitExpression(statement: Expression): void {
     this.evaluate(statement.expression);
+  }
+
+  visitFunc(statement: Func): void {
+    const func = new FuncInstance(statement);
+    this.environment.define(statement.name.lexeme, func);
   }
 
   visitIf(statement: If): void {
@@ -236,7 +243,7 @@ export default class Interpreter
     return statement.accept(this);
   }
 
-  private executeBlock(statements: Stmt[], environment: Environment): void {
+  executeBlock(statements: Stmt[], environment: Environment): void {
     const previous = this.environment;
     try {
       this.environment = environment;

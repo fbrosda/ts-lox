@@ -1,6 +1,7 @@
 import { readFileSync } from "fs";
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
+import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
@@ -13,13 +14,13 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Expression from "../stmt/Expression.js";
+import Func from "../stmt/Func.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
-import Call from "../expr/Call.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -28,6 +29,7 @@ export default class Transpiler
     let ret = "";
     ret += this.createAddHandler();
     ret += this.createClockHandler();
+    ret += "\n";
     for (const statement of statements) {
       ret += statement.accept(this);
     }
@@ -48,6 +50,33 @@ export default class Transpiler
     return `${val}\n`;
   }
 
+  visitFunc(statement: Func): string {
+    let extraParen = 0;
+    let ret;
+    if (this.depth == 0) {
+      ret = `(define ${statement.name.lexeme}\n`;
+    } else {
+      ret = `(let ((${statement.name.lexeme}\n`;
+      extraParen = 1;
+    }
+
+    const start = this.incIndent();
+    ret += `${this.indent()}(lambda (`;
+    if (statement.params.length) {
+      ret += statement.params.map(param => param.lexeme).join(" ");
+    }
+    ret += ")\n";
+
+    this.incIndent();
+    ret += this.indent() + this.stringifyBlock(statement.body);
+
+    this.depth += extraParen;
+    ret = this.decIndent(ret, this.depth - start);
+
+    this.depth += extraParen;
+    return ret;
+  }
+
   visitIf(statement: If): string {
     let ret = `(if ${statement.condition.accept(this)}\n`;
 
@@ -61,9 +90,13 @@ export default class Transpiler
   }
 
   visitBlock(statement: Block): string {
+    return this.stringifyBlock(statement.statements);
+  }
+
+  private stringifyBlock(statements: Stmt[]): string {
     const startDepth = this.incIndent();
     let ret = "(let ()\n";
-    for (const stmt of statement.statements) {
+    for (const stmt of statements) {
       ret += this.indent();
       ret += stmt.accept(this);
     }
@@ -113,7 +146,7 @@ export default class Transpiler
   visitCall(expr: Call): string {
     let ret = `(${expr.callee.accept(this)}`;
     if (expr.args.length) {
-      ret += expr.args.map(arg => arg.accept(this)).join(" ");
+      ret += " " + expr.args.map(arg => arg.accept(this)).join(" ");
     }
     ret += ")";
     return ret;
@@ -186,10 +219,12 @@ export default class Transpiler
   private incIndent(): number {
     const prev = this.depth;
     this.depth += 1;
+    // console.log("inc", prev, this.depth);
     return prev;
   }
 
   private decIndent(ret: string, count = 1): string {
+    // console.log("dec", this.depth, this.depth - count);
     let i = count;
     ret = ret.slice(0, ret.length - 1);
     while (i > 0) {
