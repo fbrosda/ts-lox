@@ -27,6 +27,7 @@ import Clock from "./Clock.js";
 import Environment from "./Environment.js";
 import FuncInstance from "./FuncInstance.js";
 import LiteralValue from "./LiteralValue.js";
+import Return from "../stmt/Return.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -51,9 +52,8 @@ export default class Interpreter
     }
   }
 
-  visitPrint(statement: Print): void {
-    const value = this.evaluate(statement.expression);
-    console.log(this.stringify(value));
+  visitBlock(statement: Block): void {
+    this.executeBlock(statement.statements, new Environment(this.environment));
   }
 
   visitBreak(): void {
@@ -77,8 +77,14 @@ export default class Interpreter
     }
   }
 
-  visitBlock(statement: Block): void {
-    this.executeBlock(statement.statements, new Environment(this.environment));
+  visitPrint(statement: Print): void {
+    const value = this.evaluate(statement.expression);
+    console.log(this.stringify(value));
+  }
+
+  visitReturn(statement: Return): void {
+    const value = this.evaluate(statement.value);
+    throw value;
   }
 
   visitVar(statement: Var): void {

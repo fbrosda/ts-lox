@@ -21,6 +21,7 @@ import Var from "../stmt/Var.js";
 import While from "../stmt/While.js";
 import ParseError from "./ParseError.js";
 import Func from "../stmt/Func.js";
+import Return from "../stmt/Return.js";
 
 const MAX_ARGS_LENGTH = 255;
 interface ExpressionF {
@@ -78,6 +79,9 @@ export default class Parser {
     }
     if (this.match(TokenType.PRINT)) {
       return this.printStatement();
+    }
+    if (this.match(TokenType.RETURN)) {
+      return this.returnStatement();
     }
     if (this.match(TokenType.WHILE)) {
       return this.whileStatement();
@@ -184,6 +188,19 @@ export default class Parser {
     const value = this.expression();
     this.consumeSemicolon();
     return new Print(value);
+  }
+
+  private returnStatement(): Return {
+    const keyword = this.previous();
+    let value;
+    if (!this.check(TokenType.SEMICOLON)) {
+      value = this.expression();
+    } else {
+      value = new Literal(null);
+    }
+
+    this.consumeSemicolon();
+    return new Return(keyword, value);
   }
 
   private varDeclaration(): Var {

@@ -1,1 +1,3 @@
-(define clock current-time)
+(define clock 
+  (lambda (return)
+    (current-time)))

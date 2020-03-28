@@ -20,7 +20,11 @@ export default class FuncInstance implements Callable {
     for (let i = 0; i < this.declaration.params.length; i++) {
       environment.define(this.declaration.params[i].lexeme, args[i]);
     }
-    interpreter.executeBlock(this.declaration.body, environment);
+    try {
+      interpreter.executeBlock(this.declaration.body, environment);
+    } catch (value) {
+      return value;
+    }
     return null;
   }
 

@@ -21,6 +21,7 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
+import Return from "../stmt/Return.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -38,11 +39,6 @@ export default class Transpiler
 
   visitBreak(): string {
     return `(break)\n`;
-  }
-
-  visitPrint(statement: Print): string {
-    const val = statement.expression.accept(this);
-    return `(begin (display ${val}) (newline))\n`;
   }
 
   visitExpression(statement: Expression): string {
@@ -65,7 +61,7 @@ export default class Transpiler
     if (statement.params.length) {
       ret += statement.params.map(param => param.lexeme).join(" ");
     }
-    ret += ")\n";
+    ret += " return)\n";
 
     this.incIndent();
     ret += this.indent() + this.stringifyBlock(statement.body);
@@ -101,6 +97,15 @@ export default class Transpiler
       ret += stmt.accept(this);
     }
     return this.decIndent(ret, this.depth - startDepth);
+  }
+
+  visitPrint(statement: Print): string {
+    const val = statement.expression.accept(this);
+    return `(begin (display ${val}) (newline))\n`;
+  }
+
+  visitReturn(statement: Return): string {
+    return `(return ${statement.value.accept(this)})\n`;
   }
 
   visitVar(statement: Var): string {
@@ -144,11 +149,14 @@ export default class Transpiler
   }
 
   visitCall(expr: Call): string {
-    let ret = `(${expr.callee.accept(this)}`;
+    let ret = "(call/cc (lambda (return)\n";
+    this.incIndent();
+    ret += `${this.indent()}(${expr.callee.accept(this)}`;
     if (expr.args.length) {
       ret += " " + expr.args.map(arg => arg.accept(this)).join(" ");
     }
-    ret += ")";
+    ret += " return)))";
+    this.depth -= 1;
     return ret;
   }
 

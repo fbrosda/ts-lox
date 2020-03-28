@@ -13,6 +13,7 @@ const TYPES = {
   Func: `Token: name, Token[]: params, ${STMT}[]: body`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
   Print: `${EXPR}: expression`,
+  Return: `Token: keyword, ${EXPR}: value`,
   Var: `Token: name, ${EXPR}: initializer`,
   While: `${EXPR}: condition, ${STMT}: body`
 };
