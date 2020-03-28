@@ -8,6 +8,7 @@ const VISITOR = "Visitor";
 
 const TYPES = {
   Block: `${STMT}[]: statements`,
+  Break: ``,
   Expression: `${EXPR}: expression`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
   Print: `${EXPR}: expression`,
@@ -52,10 +53,12 @@ async function generateVisitorClass() {
 
 async function generateTypeClass(name, parameter) {
   const parameterList = parameter.split(",").map(param =>
-    param
-      .trim()
-      .split(":")
-      .map(x => x.trim())
+    !param
+      ? []
+      : param
+          .trim()
+          .split(":")
+          .map(x => x.trim())
   );
   let ret = "";
 
@@ -90,17 +93,25 @@ async function generateTypeClass(name, parameter) {
   function writeMembers() {
     let tmp = "";
     for (const [pType, pName] of parameterList) {
+      if (!pName) {
+        continue;
+      }
       tmp += `${PAD}${pName}: ${pType};\n`;
+    }
+    if (tmp) {
+      tmp += "\n";
     }
     return tmp;
   }
 
   function writeConstructor() {
     let tmp = "";
-    tmp += "\n";
     tmp += `${PAD}constructor(`;
     let isFirst = true;
     for (const [pType, pName] of parameterList) {
+      if (!pName) {
+        continue;
+      }
       if (!isFirst) {
         tmp += ", ";
       }
@@ -111,9 +122,15 @@ async function generateTypeClass(name, parameter) {
 
     tmp += `${PAD}${PAD}super();\n`;
 
-    tmp += "\n";
+    let members = "";
     for (const [pType, pName] of parameterList) {
-      tmp += `${PAD}${PAD}this.${pName} = ${pName};\n`;
+      if (!pName) {
+        continue;
+      }
+      members += `${PAD}${PAD}this.${pName} = ${pName};\n`;
+    }
+    if (members) {
+      tmp += "\n" + members;
     }
 
     tmp += `${PAD}}\n`;

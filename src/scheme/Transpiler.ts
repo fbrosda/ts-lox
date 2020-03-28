@@ -32,6 +32,10 @@ export default class Transpiler
     return ret;
   }
 
+  visitBreak(): string {
+    return `(break)\n`;
+  }
+
   visitPrint(statement: Print): string {
     const val = statement.expression.accept(this);
     return `(begin (display ${val}) (newline))\n`;

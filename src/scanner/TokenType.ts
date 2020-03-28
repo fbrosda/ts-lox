@@ -34,6 +34,7 @@ enum TokenType {
   // Keywords. (separate index for easier matching in Scanner.ts)
   AND = 100,
   CLASS,
+  BREAK,
   ELSE,
   FALSE,
   FUN,

@@ -46,6 +46,10 @@ export default class Interpreter
     console.log(this.stringify(value));
   }
 
+  visitBreak(): void {
+    throw new Error("break");
+  }
+
   visitExpression(statement: Expression): void {
     this.evaluate(statement.expression);
   }
@@ -71,7 +75,15 @@ export default class Interpreter
 
   visitWhile(statement: While): void {
     while (this.isTruthy(this.evaluate(statement.condition))) {
-      this.execute(statement.body);
+      try {
+        this.execute(statement.body);
+      } catch (error) {
+        const msg = error.message;
+        if (msg === "break") {
+          return;
+        }
+        throw error;
+      }
     }
   }
 
