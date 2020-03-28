@@ -14,10 +14,10 @@ export default class Lox {
   private static interpreter = new Interpreter();
   private static schemeTranspiler = new SchemeTranspiler();
 
-  static async runScript(path: string, transpile: boolean): Promise<void> {
+  static async runScript(path: string, pretty: boolean | null): Promise<void> {
     const contents = await fs.readFile(path, { encoding: "utf-8" });
-    if (transpile) {
-      Lox.transpile(contents);
+    if (pretty != null) {
+      Lox.transpile(contents, pretty);
     } else {
       Lox.run(contents);
     }
@@ -60,7 +60,7 @@ export default class Lox {
     }
   }
 
-  private static transpile(source: string): void {
+  private static transpile(source: string, pretty: boolean): void {
     const scanner = new Scanner(source);
     const tokens = scanner.scanTokens();
 
@@ -70,7 +70,12 @@ export default class Lox {
     if (this.hadError) {
       return;
     } else if (statements !== null) {
-      const ret = this.schemeTranspiler.transpile(statements);
+      let ret;
+      if (pretty) {
+        ret = this.schemeTranspiler.prettyPrint(statements);
+      } else {
+        ret = this.schemeTranspiler.transpile(statements);
+      }
       console.log(ret);
     }
   }

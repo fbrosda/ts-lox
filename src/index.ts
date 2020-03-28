@@ -3,13 +3,16 @@ import Lox from "./Lox.js";
 main(process.argv.slice(2));
 
 function main(args: string[]): void {
-  if (args.length === 2 && args[0] === "--scheme") {
-    Lox.runScript(args[1], true);
+  const transpile = args.indexOf("--scheme") > -1;
+  const pretty = args.indexOf("--pretty") > -1;
+
+  if (transpile) {
+    Lox.runScript(args[args.length - 1], pretty);
   } else if (args.length > 1) {
-    console.log("Usage: jslox [--scheme] [script]");
+    console.log("Usage: jslox [--scheme [--pretty]] [script]");
     process.exit(64);
   } else if (args.length === 1) {
-    Lox.runScript(args[0], false);
+    Lox.runScript(args[0], null);
   } else {
     Lox.runPrompt();
   }
