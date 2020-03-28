@@ -1,9 +1,11 @@
+(use-modules (srfi srfi-1))
 (define *add*
-  (lambda (l r)
-    (cond ((and (number? l) (number? r))
-           (+ l r))
-          ((or (string? l) (string? r))
-           (string-append
-             (format #f "~a" l)
-             (format #f "~a" r)))
-          (else (throw 'invalidArgs "Operands must be either strings or numbers.")))))
+  (lambda (. args)
+    (cond ((every number? args)
+           (apply + args))
+          ((any string? args)
+           (apply string-append 
+                  (map (lambda (x) (format #f "~a" x))
+                       args)))
+          (else (throw 'invalidArgs 
+                       "Operands must be either strings or numbers.")))))
