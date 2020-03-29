@@ -2,6 +2,7 @@ import { promises as fs } from "fs";
 import * as readline from "readline";
 import Interpreter from "./interpreter/Interpreter.js";
 import RuntimeError from "./interpreter/RuntimeError.js";
+import Resolver from "./optimize/Resolver.js";
 import Parser from "./parser/Parser.js";
 import Scanner from "./scanner/Scanner.js";
 import Token from "./scanner/Token.js";
@@ -56,6 +57,12 @@ export default class Lox {
     if (this.hadError) {
       return;
     } else if (statements !== null) {
+      const resolver = new Resolver(this.interpreter);
+      resolver.resolve(statements);
+
+      if (this.hadError) {
+        return;
+      }
       this.interpreter.interpret(statements);
     }
   }
@@ -70,6 +77,13 @@ export default class Lox {
     if (this.hadError) {
       return;
     } else if (statements !== null) {
+      const resolver = new Resolver(this.interpreter);
+      resolver.resolve(statements);
+
+      if (this.hadError) {
+        return;
+      }
+
       let ret;
       if (pretty) {
         ret = this.schemeTranspiler.prettyPrint(statements);

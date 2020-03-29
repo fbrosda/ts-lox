@@ -33,6 +33,7 @@ export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
   globals = new Environment();
   private environment = this.globals;
+  private locals = new Map<Expr, number>();
 
   constructor() {
     this.globals.define("clock", new Clock());
@@ -88,8 +89,6 @@ export default class Interpreter
   }
 
   visitVar(statement: Var): void {
-    this.environment.mark(statement.name.lexeme);
-
     const value = this.evaluate(statement.initializer);
     this.environment.define(statement.name.lexeme, value);
   }
@@ -108,41 +107,15 @@ export default class Interpreter
     }
   }
 
-  visitLiteral(expression: Literal): LiteralValue {
-    return expression.value;
-  }
-
-  visitLogical(expression: Logical): LiteralValue {
-    const left = this.evaluate(expression.left);
-    if (expression.operator.type === TokenType.OR) {
-      if (this.isTruthy(left)) {
-        return left;
-      }
+  visitAssign(expression: Assign): LiteralValue {
+    const value = this.evaluate(expression.value);
+    const distance = this.locals.get(expression);
+    if (distance !== undefined) {
+      this.environment.assignAt(distance, expression.name, value);
     } else {
-      if (!this.isTruthy(left)) {
-        return left;
-      }
+      this.globals.assign(expression.name, value);
     }
-    return this.evaluate(expression.right);
-  }
-
-  visitGrouping(expression: Grouping): LiteralValue {
-    return this.evaluate(expression.expression);
-  }
-
-  visitUnary(expression: Unary): LiteralValue {
-    const right = this.evaluate(expression.expression);
-
-    switch (expression.operator.type) {
-      case TokenType.MINUS:
-        this.checkNumberOperands(expression.operator, right);
-        return -(right as number);
-        break;
-      case TokenType.BANG:
-        return !this.isTruthy(right);
-        break;
-    }
-    return null;
+    return value;
   }
 
   visitBinary(expression: Binary): LiteralValue {
@@ -172,6 +145,7 @@ export default class Interpreter
         if (this.isString(left) || this.isString(right)) {
           return (left as string) + (right as string);
         }
+
         throw new RuntimeError(
           expression.operator,
           "Operands must be either strings or numbers."
@@ -222,6 +196,43 @@ export default class Interpreter
     return callee.exec(this, args);
   }
 
+  visitGrouping(expression: Grouping): LiteralValue {
+    return this.evaluate(expression.expression);
+  }
+
+  visitLiteral(expression: Literal): LiteralValue {
+    return expression.value;
+  }
+
+  visitLogical(expression: Logical): LiteralValue {
+    const left = this.evaluate(expression.left);
+    if (expression.operator.type === TokenType.OR) {
+      if (this.isTruthy(left)) {
+        return left;
+      }
+    } else {
+      if (!this.isTruthy(left)) {
+        return left;
+      }
+    }
+    return this.evaluate(expression.right);
+  }
+
+  visitUnary(expression: Unary): LiteralValue {
+    const right = this.evaluate(expression.expression);
+
+    switch (expression.operator.type) {
+      case TokenType.MINUS:
+        this.checkNumberOperands(expression.operator, right);
+        return -(right as number);
+        break;
+      case TokenType.BANG:
+        return !this.isTruthy(right);
+        break;
+    }
+    return null;
+  }
+
   visitTernary(expression: Ternary): LiteralValue {
     const cond = this.evaluate(expression.cond);
     if (this.isTruthy(cond)) {
@@ -232,13 +243,16 @@ export default class Interpreter
   }
 
   visitVariable(expression: Variable): LiteralValue {
-    return this.environment.get(expression.name);
+    return this.lookUpVariable(expression.name, expression);
   }
 
-  visitAssign(expression: Assign): LiteralValue {
-    const value = this.evaluate(expression.value);
-    this.environment.assign(expression.name, value);
-    return value;
+  private lookUpVariable(name: Token, expression: Expr): LiteralValue {
+    const distance = this.locals.get(expression);
+    if (distance !== undefined) {
+      return this.environment.getAt(distance, name.lexeme);
+    } else {
+      return this.globals.get(name);
+    }
   }
 
   private evaluate(expression: Expr): LiteralValue {
@@ -247,6 +261,10 @@ export default class Interpreter
 
   private execute(statement: Stmt): void {
     return statement.accept(this);
+  }
+
+  resolve(expression: Expr, depth: number): void {
+    this.locals.set(expression, depth);
   }
 
   executeBlock(statements: Stmt[], environment: Environment): void {

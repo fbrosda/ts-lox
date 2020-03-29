@@ -8,7 +8,7 @@ const VISITOR = "Visitor";
 
 const TYPES = {
   Block: `${STMT}[]: statements`,
-  Break: ``,
+  Break: `Token: name`,
   Expression: `${EXPR}: expression`,
   Func: `Token: name, Token[]: params, ${STMT}[]: body`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,

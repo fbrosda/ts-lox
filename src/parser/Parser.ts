@@ -31,7 +31,6 @@ interface ExpressionF {
 export default class Parser {
   private tokens: Token[];
   private current = 0;
-  private loopDepth = 0;
 
   constructor(tokens: Token[]) {
     this.tokens = tokens;
@@ -93,11 +92,8 @@ export default class Parser {
   }
 
   private breakStatement(): Break {
-    if (this.loopDepth < 1) {
-      this.error(this.previous(), "Unexpeted break statement.");
-    }
     this.consumeSemicolon();
-    return new Break();
+    return new Break(this.previous());
   }
 
   private expressionStatement(): Expression {
@@ -130,45 +126,40 @@ export default class Parser {
   }
 
   private forStatement(): Stmt {
-    this.loopDepth++;
-    try {
-      this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'for'.");
 
-      let initializer;
-      if (this.match(TokenType.SEMICOLON)) {
-        initializer = null;
-      } else if (this.match(TokenType.VAR)) {
-        initializer = this.varDeclaration();
-      } else {
-        initializer = this.expressionStatement();
-      }
-
-      let condition;
-      if (this.match(TokenType.SEMICOLON)) {
-        condition = new Literal(true);
-      } else {
-        condition = this.expression();
-      }
-      this.consumeSemicolon();
-
-      let increment = null;
-      if (!this.match(TokenType.RIGHT_PAREN)) {
-        increment = this.expression();
-      }
-      this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clause.");
-
-      let body = this.statement();
-      if (increment) {
-        body = new Block([body, new Expression(increment)]);
-      }
-      body = new While(condition, body);
-      if (initializer) {
-        body = new Block([initializer, body]);
-      }
-      return body;
-    } finally {
-      this.loopDepth--;
+    let initializer;
+    if (this.match(TokenType.SEMICOLON)) {
+      initializer = null;
+    } else if (this.match(TokenType.VAR)) {
+      initializer = this.varDeclaration();
+    } else {
+      initializer = this.expressionStatement();
     }
+
+    let condition;
+    if (this.match(TokenType.SEMICOLON)) {
+      condition = new Literal(true);
+    } else {
+      condition = this.expression();
+    }
+    this.consumeSemicolon();
+
+    let increment = null;
+    if (!this.match(TokenType.RIGHT_PAREN)) {
+      increment = this.expression();
+    }
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after for clause.");
+
+    let body = this.statement();
+    if (increment) {
+      body = new Block([body, new Expression(increment)]);
+    }
+    body = new While(condition, body);
+    if (initializer) {
+      body = new Block([initializer, body]);
+    }
+    return body;
   }
 
   private ifStatement(): If {
@@ -214,17 +205,12 @@ export default class Parser {
   }
 
   private whileStatement(): While {
-    this.loopDepth++;
-    try {
-      this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
-      const condition = this.expression();
-      this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
-      const body = this.statement();
+    this.consume(TokenType.LEFT_PAREN, "Expect '(' after 'while'.");
+    const condition = this.expression();
+    this.consume(TokenType.RIGHT_PAREN, "Expect ')' after condition.");
+    const body = this.statement();
 
-      return new While(condition, body);
-    } finally {
-      this.loopDepth--;
-    }
+    return new While(condition, body);
   }
 
   private block(): Stmt[] {
