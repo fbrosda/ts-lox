@@ -1,11 +1,15 @@
+import { ClassKeyword, NativeFunc } from "../const.js";
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
 import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
+import Getter from "../expr/Getter.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import Logical from "../expr/Logical.js";
+import Setter from "../expr/Setter.js";
 import Ternary from "../expr/Ternary.js";
+import This from "../expr/This.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
 import ExprVisitor from "../expr/Visitor.js";
@@ -13,21 +17,24 @@ import Lox from "../Lox.js";
 import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
+import Class from "../stmt/Class.js";
 import Expression from "../stmt/Expression.js";
 import Func from "../stmt/Func.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
+import Return from "../stmt/Return.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
 import RuntimeError from ".//RuntimeError.js";
 import Callable from "./Callable.js";
+import ClassCallable from "./ClassCallable.js";
+import ClassInstance from "./ClassInstance.js";
 import Clock from "./Clock.js";
 import Environment from "./Environment.js";
 import FuncInstance from "./FuncInstance.js";
 import LiteralValue from "./LiteralValue.js";
-import Return from "../stmt/Return.js";
 
 export default class Interpreter
   implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
@@ -36,7 +43,7 @@ export default class Interpreter
   private locals = new Map<Expr, number>();
 
   constructor() {
-    this.globals.define("clock", new Clock());
+    this.globals.define(NativeFunc.CLOCK, new Clock());
   }
 
   interpret(statements: Stmt[]): void {
@@ -55,6 +62,22 @@ export default class Interpreter
 
   visitBlock(statement: Block): void {
     this.executeBlock(statement.statements, new Environment(this.environment));
+  }
+
+  visitClass(statement: Class): void {
+    this.environment.define(statement.name.lexeme, null);
+    const methods = new Map<string, FuncInstance>();
+    for (const method of statement.methods) {
+      const func = new FuncInstance(
+        method,
+        this.environment,
+        method.name.lexeme === ClassKeyword.INIT
+      );
+      methods.set(method.name.lexeme, func);
+    }
+
+    const klass = new ClassCallable(statement.name.lexeme, methods);
+    this.environment.assign(statement.name, klass);
   }
 
   visitBreak(): void {
@@ -196,6 +219,15 @@ export default class Interpreter
     return callee.exec(this, args);
   }
 
+  visitGetter(expression: Getter): LiteralValue {
+    const object = this.evaluate(expression.object);
+    if (this.isClassInstance(object)) {
+      return object.get(expression.name);
+    }
+
+    throw new RuntimeError(expression.name, "Only instances have properties.");
+  }
+
   visitGrouping(expression: Grouping): LiteralValue {
     return this.evaluate(expression.expression);
   }
@@ -231,6 +263,21 @@ export default class Interpreter
         break;
     }
     return null;
+  }
+
+  visitSetter(expression: Setter): LiteralValue {
+    const object = this.evaluate(expression.object);
+    if (!this.isClassInstance(object)) {
+      throw new RuntimeError(expression.name, "Only instances have fields.");
+    }
+
+    const value = this.evaluate(expression.value);
+    object.set(expression.name, value);
+    return value;
+  }
+
+  visitThis(expression: This): LiteralValue {
+    return this.lookUpVariable(expression.keyword, expression);
   }
 
   visitTernary(expression: Ternary): LiteralValue {
@@ -320,6 +367,10 @@ export default class Interpreter
 
   private isCallable(callee: LiteralValue): callee is Callable {
     return !!(callee && (callee as Callable).exec);
+  }
+
+  private isClassInstance(object: LiteralValue): object is ClassInstance {
+    return !!(object && (object as ClassInstance).get);
   }
 
   private stringify(val: LiteralValue): string {

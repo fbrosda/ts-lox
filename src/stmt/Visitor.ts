@@ -1,5 +1,6 @@
 import Block from "./Block.js";
 import Break from "./Break.js";
+import Class from "./Class.js";
 import Expression from "./Expression.js";
 import Func from "./Func.js";
 import If from "./If.js";
@@ -11,6 +12,7 @@ import While from "./While.js";
 export default interface Visitor<T> {
   visitBlock(statement: Block): T;
   visitBreak(statement: Break): T;
+  visitClass(statement: Class): T;
   visitExpression(statement: Expression): T;
   visitFunc(statement: Func): T;
   visitIf(statement: If): T;

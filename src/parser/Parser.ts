@@ -2,9 +2,11 @@ import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
 import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
+import Getter from "../expr/Getter.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import Logical from "../expr/Logical.js";
+import Setter from "../expr/Setter.js";
 import Ternary from "../expr/Ternary.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
@@ -13,15 +15,17 @@ import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
 import Break from "../stmt/Break.js";
+import Class from "../stmt/Class.js";
 import Expression from "../stmt/Expression.js";
+import Func from "../stmt/Func.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
+import Return from "../stmt/Return.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import While from "../stmt/While.js";
 import ParseError from "./ParseError.js";
-import Func from "../stmt/Func.js";
-import Return from "../stmt/Return.js";
+import This from "../expr/This.js";
 
 const MAX_ARGS_LENGTH = 255;
 interface ExpressionF {
@@ -49,6 +53,9 @@ export default class Parser {
 
   private declaration(): Stmt | null {
     try {
+      if (this.match(TokenType.CLASS)) {
+        return this.classDeclaration();
+      }
       if (this.match(TokenType.FUN)) {
         return this.funcDeclaration("function");
       }
@@ -64,6 +71,19 @@ export default class Parser {
         throw e;
       }
     }
+  }
+
+  private classDeclaration(): Stmt {
+    const name = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+    this.consume(TokenType.LEFT_BRACE, `Expect '{' before class body.`);
+
+    const methods = [];
+    while (!this.check(TokenType.RIGHT_BRACE) && !this.isAtEnd()) {
+      methods.push(this.funcDeclaration("method"));
+    }
+    this.consume(TokenType.RIGHT_BRACE, `Expect '}' after class body.`);
+
+    return new Class(name, methods);
   }
 
   private statement(): Stmt {
@@ -240,6 +260,9 @@ export default class Parser {
       if (expr instanceof Variable) {
         const name = (expr as Variable).name;
         return new Assign(name, value);
+      } else if (expr instanceof Getter) {
+        const getter = expr as Getter;
+        return new Setter(getter.object, getter.name, value);
       }
 
       this.error(equals, "Invalid assignemnt target.");
@@ -341,6 +364,12 @@ export default class Parser {
     while (true) {
       if (this.match(TokenType.LEFT_PAREN)) {
         expr = this.finishCall(expr);
+      } else if (this.match(TokenType.DOT)) {
+        const name = this.consume(
+          TokenType.IDENTIFIER,
+          "Expect property name after '.'."
+        );
+        expr = new Getter(expr, name);
       } else {
         break;
       }
@@ -381,6 +410,10 @@ export default class Parser {
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.THIS)) {
+      return new This(this.previous());
     }
 
     if (this.match(TokenType.IDENTIFIER)) {

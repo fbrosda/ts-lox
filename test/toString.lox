@@ -1,0 +1,26 @@
+fun testFunc() {
+    print 1234;
+}
+
+class TestClass {
+    method() {}
+}
+
+print "";
+print "######## Simple Values ########";
+print 1234;
+print "abcde";
+print true;
+print false;
+
+print "";
+print "######## Functions ########";
+print clock;
+print testFunc;
+
+print "";
+print "######## Class ########";
+var instance = TestClass();
+print TestClass;
+print instance;
+

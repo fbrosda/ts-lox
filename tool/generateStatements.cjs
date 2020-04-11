@@ -9,6 +9,7 @@ const VISITOR = "Visitor";
 const TYPES = {
   Block: `${STMT}[]: statements`,
   Break: `Token: name`,
+  Class: `Token: name, Func[]: methods`,
   Expression: `${EXPR}: expression`,
   Func: `Token: name, Token[]: params, ${STMT}[]: body`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
@@ -88,6 +89,9 @@ async function generateTypeClass(name, parameter) {
     }
     if (parameter.includes("Token")) {
       tmp += 'import Token from "../scanner/Token.js";\n';
+    }
+    if (parameter.includes("Func")) {
+      tmp += 'import Func from "../stmt/Func.js";\n';
     }
     return tmp;
   }

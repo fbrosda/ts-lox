@@ -1,27 +1,32 @@
 import { readFileSync } from "fs";
+import { NativeFunc } from "../const.js";
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
 import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
+import Getter from "../expr/Getter.js";
 import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import Logical from "../expr/Logical.js";
+import Setter from "../expr/Setter.js";
 import Ternary from "../expr/Ternary.js";
+import This from "../expr/This.js";
 import Unary from "../expr/Unary.js";
 import Variable from "../expr/Variable.js";
 import ExprVisitor from "../expr/Visitor.js";
 import Token from "../scanner/Token.js";
 import TokenType from "../scanner/TokenType.js";
 import Block from "../stmt/Block.js";
+import Class from "../stmt/Class.js";
 import Expression from "../stmt/Expression.js";
 import Func from "../stmt/Func.js";
 import If from "../stmt/If.js";
 import Print from "../stmt/Print.js";
+import Return from "../stmt/Return.js";
 import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
-import Return from "../stmt/Return.js";
 
 export default class Transpiler
   implements ExprVisitor<string>, StmtVisitor<string> {
@@ -43,8 +48,17 @@ export default class Transpiler
     return ret;
   }
 
+  visitBlock(statement: Block): string {
+    return this.stringifyBlock(statement.statements);
+  }
+
   visitBreak(): string {
     return `(break)`;
+  }
+
+  visitClass(statement: Class): string {
+    // TODO
+    return `${statement.name.lexeme}`;
   }
 
   visitExpression(statement: Expression): string {
@@ -89,10 +103,6 @@ export default class Transpiler
       ret += `${statement.elseBranch.accept(this)}`;
     }
     return this.decIndent(ret);
-  }
-
-  visitBlock(statement: Block): string {
-    return this.stringifyBlock(statement.statements);
   }
 
   visitPrint(statement: Print): string {
@@ -156,6 +166,11 @@ export default class Transpiler
     return ret;
   }
 
+  visitGetter(expression: Getter): string {
+    // TODO
+    return `${expression.object}->${expression.name.lexeme}`;
+  }
+
   visitGrouping(expr: Grouping): string {
     return expr.expression.accept(this);
   }
@@ -175,6 +190,16 @@ export default class Transpiler
 
   visitLogical(expr: Logical): string {
     return this.parenthesize(expr.operator.lexeme, expr.left, expr.right);
+  }
+
+  visitSetter(expression: Setter): string {
+    // TODO
+    return `${expression.object}->${expression.name.lexeme}`;
+  }
+
+  visitThis(expression: This): string {
+    // TODO
+    return `${expression.keyword}`;
   }
 
   visitTernary(expr: Ternary): string {
@@ -242,7 +267,7 @@ export default class Transpiler
   }
 
   private createClockHandler(): string {
-    return this.loadSchemeFunction("clock");
+    return this.loadSchemeFunction(NativeFunc.CLOCK);
   }
 
   private loadSchemeFunction(name: string): string {

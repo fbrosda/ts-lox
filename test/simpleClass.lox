@@ -1,0 +1,7 @@
+class DevonshireCream {
+  serveOne() {
+    return "Scones";
+  }
+}
+
+print DevonshireCream().serveOne();

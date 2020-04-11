@@ -9,10 +9,13 @@ const TYPES = {
   Assign: `Token: name, ${EXPR}: value`,
   Binary: `${EXPR}: left, Token: operator, ${EXPR}: right`,
   Call: `${EXPR}: callee, Token: paren, ${EXPR}[]: args`,
+  Getter: `${EXPR}: object, Token: name`,
   Grouping: `${EXPR}: expression`,
   Literal: "string | number | boolean | null: value",
   Logical: `${EXPR}: left, Token: operator, ${EXPR}: right`,
+  Setter: `${EXPR}: object, Token: name, ${EXPR}: value`,
   Ternary: `${EXPR}: cond, Token: first, ${EXPR}: left, Token: second, ${EXPR}: right`,
+  This: `Token: keyword`,
   Unary: `Token: operator, ${EXPR}: expression`,
   Variable: "Token: name"
 };
