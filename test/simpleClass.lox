@@ -1,7 +1,13 @@
-class DevonshireCream {
-  serveOne() {
-    return "Scones";
-  }
+class Cat {
+    init(name) {
+        this.name = name;
+    }
+
+    speak() {
+        return "meow";
+    }
 }
 
-print DevonshireCream().serveOne();
+var cat = Cat("Tiger");
+var speak = cat.speak;
+print cat.name + ": " + speak();
