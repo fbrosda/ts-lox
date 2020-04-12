@@ -6,37 +6,64 @@
 (define-accessor class-methods (+ vtable-offset-user 1))
 (define-accessor object-fields 0)
 
+(define-syntax-rule 
+  (get-method-name definition)
+  (car definition))
+
+(define-syntax-rule 
+  (get-method-func definition)
+  (eval (cadr definition) (interaction-environment)))
+
+(define (define-method methods definition)
+  (let ((method-name (get-method-name definition))
+        (method-func (get-method-func definition)))
+    (hashq-set! methods method-name method-func)))
+
 (define (print-class x port)
   (format port "<~a>" (class-name x)))
-
-(define (print-instance x port)
-  (format port "<~a instance>" (class-name (struct-vtable x))))
 
 (define <class>
   (make-vtable
     (string-append standard-vtable-fields "pwpw")
     print-class))
 
-(define (make-class name funcs)
-  (let* ((class (make-struct/no-tail <class> 
-                  (make-struct-layout "pw") 
-                  print-instance 
-                  name
-                  (make-hash-table)))
-         (methods (class-methods class)))
-    (for-each (lambda (func)
-                (hashq-set! methods 
-                            (car func) 
-                            (eval (cadr func) (interaction-environment))))
-              funcs)
-    class))
-
 (define (class? x)
   (and (struct? x)
        (eq? (struct-vtable x) <class>)))
 
+(define (print-instance x port)
+  (format port "<~a instance>" (class-name (struct-vtable x))))
+
+(define (create-class name)
+  (make-struct/no-tail <class> 
+    (make-struct-layout "pw") print-instance name (make-hash-table)))
+
+(define (make-class name funcs)
+  (let* ((class (create-class name))
+         (methods (class-methods class)))
+    (for-each (lambda (definition)
+                (define-method methods definition))
+              funcs)
+    class))
+
+(define-syntax method
+  (lambda (x)
+    (syntax-case x ()
+      ((_ (args ...) body ...)
+       (with-syntax ((self (datum->syntax x 'self)))
+         #'(lambda (self args ...)
+             body ...))))))
+
 (define-syntax-rule (define-class name methods ...)
   (define name (make-class 'name '(methods ...))))
+
+(define-syntax-rule (define-instance name class )
+  (define name
+    (let* ((properties (make-hash-table))
+         (ret (make-struct/no-tail class properties)))
+
+      (if (method-ref ret init) (method-call ret init))
+      ret)))
 
 (define-syntax-rule (method-ref object name)
   (hashq-ref (class-methods (struct-vtable object)) 'name))
@@ -50,20 +77,15 @@
 (define-syntax-rule (field-set! object name value)
   (hashq-set! (object-fields object) 'name value))
 
-(define-syntax-rule (make-instance name class )
-  (define name
-    (let* ((properties (make-hash-table))
-         (ret (make-struct/no-tail class properties)))
 
-      (if (method-ref ret init) (method-call ret init))
-      ret)))
+
 
 (define-class Cat
-  (init (lambda (self)
+  (init (method ()
           (field-set! self name "Cat")))
-  (speak (lambda (self)
-           "meow")))
-(make-instance tiger Cat)
+  (speak (method ()
+           (string-append (field-ref self name) ": 'meow'"))))
+(define-instance tiger Cat)
 
 (method-call tiger speak)
 (field-ref tiger name)
