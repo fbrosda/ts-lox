@@ -1,0 +1,21 @@
+class A {
+    test () {
+        return this;
+    }
+}
+
+class B {
+    test () {
+        return this;
+    }
+}
+
+var a = A();
+var b = B();
+var test = a.test;
+b.test2 = test;
+
+print a.test();
+print test();
+print b.test2();
+print b.test();
