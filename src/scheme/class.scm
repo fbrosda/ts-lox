@@ -54,22 +54,31 @@
          #'(lambda (self args ...)
              body ...))))))
 
-(define-syntax-rule (define-class name methods ...)
-  (define name (make-class 'name '(methods ...))))
+(define-syntax define-class
+  (syntax-rules ()
+    ((_ name (method-name method-args method-body ...) ...)
+     (define name
+       (make-class 'name 
+                   '((method-name 
+                       (method method-args
+                         method-body ...))
+                     ...))))))
 
-(define-syntax-rule (define-instance name class )
+(define-syntax-rule (define-instance name class arg ...)
   (define name
     (let* ((properties (make-hash-table))
          (ret (make-struct/no-tail class properties)))
 
-      (if (method-ref ret init) (method-call ret init))
+      (if (method-ref ret init) (method-call ret init arg ...))
       ret)))
 
 (define-syntax-rule (method-ref object name)
-  (hashq-ref (class-methods (struct-vtable object)) 'name))
+  (lambda args
+    (let ((m (hashq-ref (class-methods (struct-vtable object)) 'name)))
+      (apply m (cons object args)))))
 
-(define-syntax-rule (method-call object name)
-  ((method-ref object name) object))
+(define-syntax-rule (method-call object name arg ...)
+  ((method-ref object name) arg ...))
 
 (define-syntax-rule (field-ref object name)
   (hashq-ref (object-fields object) 'name))
@@ -81,14 +90,14 @@
 
 
 (define-class Cat
-  (init (method ()
-          (field-set! self name "Cat")))
-  (speak (method ()
-           (string-append (field-ref self name) ": 'meow'"))))
-(define-instance tiger Cat)
+  (init (name)
+    (field-set! self name name))
+  (speak (word)
+    (string-append (field-ref self name) ": " word)))
+(define-instance tiger Cat "Tiger")
 
-(method-call tiger speak)
+(method-call tiger speak "Hello World")
 (field-ref tiger name)
-(field-set! tiger name "Tiger")
-(field-ref tiger name)
+(field-set! tiger test "Lion")
+(field-ref tiger test)
 
