@@ -36,7 +36,7 @@
 
 (define (create-class name)
   (make-struct/no-tail <class> 
-    (make-struct-layout "pw") print-instance name (make-hash-table)))
+                       (make-struct-layout "pw") print-instance name (make-hash-table)))
 
 (define (make-class name funcs)
   (let* ((class (create-class name))
@@ -49,11 +49,11 @@
 (define-syntax create-method
   (lambda (x)
     (syntax-case x ()
-      ((_ (args ...) body ...)
-       (with-syntax ((this (datum->syntax x 'this))
-                     (return (datum->syntax x 'return)))
-         #'(lambda (this return args ...)
-             body ...))))))
+                 ((_ (args ...) body ...)
+                  (with-syntax ((this (datum->syntax x 'this))
+                                (return (datum->syntax x 'return)))
+                               #'(lambda (this return args ...)
+                                   body ...))))))
 
 (define-syntax define-class
   (syntax-rules ()
@@ -62,14 +62,15 @@
        (make-class 'name 
                    '((method-name 
                        (create-method method-args
-                         method-body ...))
+                                      method-body ...))
                      ...))))))
 
 (define (method-ref object name)
-  (let ((m (hashq-ref (class-methods (struct-vtable object)) name)))
+  (let ((m (hashq-ref 
+             (class-methods (struct-vtable object))
+             name)))
     (if m
-        (lambda args
-          (apply m (cons object args)))
+        (lambda args (apply m (cons object args)))
         #f)))
 
 (define (method-call object name . args)
@@ -84,12 +85,13 @@
     (or field (method-ref object name))))
 
 (define (field-set! object name value)
-  (hashq-set! (object-fields object) name value))
+  (hashq-set! (object-fields object) name value)
+  (values))
 
 (define (make-instance class . args)
-     (let* ((properties (make-hash-table))
-            (ret (make-struct/no-tail class properties))
-            (init (method-ref ret 'init)))
-       (when init
-         (call-with-return init args))
-       ret))
+  (let* ((properties (make-hash-table))
+         (ret (make-struct/no-tail class properties))
+         (init (method-ref ret 'init)))
+    (when init
+      (call-with-return init args))
+    ret))
