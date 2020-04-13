@@ -84,11 +84,11 @@ export default class Transpiler
     }
 
     const start = this.incIndent();
-    ret += `(lambda (`;
+    ret += `(lambda (return `;
     if (statement.params.length) {
       ret += statement.params.map(param => param.lexeme).join(" ");
     }
-    ret += " return)";
+    ret += ")";
 
     this.incIndent();
     ret += this.stringifyBlock(statement.body);
