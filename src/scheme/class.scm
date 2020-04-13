@@ -46,12 +46,13 @@
               funcs)
     class))
 
-(define-syntax method
+(define-syntax create-method
   (lambda (x)
     (syntax-case x ()
       ((_ (args ...) body ...)
-       (with-syntax ((self (datum->syntax x 'self)))
-         #'(lambda (self args ...)
+       (with-syntax ((this (datum->syntax x 'this))
+                     (return (datum->syntax x 'return)))
+         #'(lambda (this return args ...)
              body ...))))))
 
 (define-syntax define-class
@@ -60,44 +61,35 @@
      (define name
        (make-class 'name 
                    '((method-name 
-                       (method method-args
+                       (create-method method-args
                          method-body ...))
                      ...))))))
 
-(define-syntax-rule (define-instance name class arg ...)
-  (define name
-    (let* ((properties (make-hash-table))
-         (ret (make-struct/no-tail class properties)))
+(define (method-ref object name)
+  (let ((m (hashq-ref (class-methods (struct-vtable object)) name)))
+    (if m
+        (lambda args
+          (apply m (cons object args)))
+        #f)))
 
-      (if (method-ref ret init) (method-call ret init arg ...))
-      ret)))
+(define (method-call object name . args)
+  (let ((m (method-ref object name)))
+    (if m
+        (apply m args)
+        (throw 'unknownMethod 
+               (*add* "Cannot find method " name " for object " object)))))
 
-(define-syntax-rule (method-ref object name)
-  (lambda args
-    (let ((m (hashq-ref (class-methods (struct-vtable object)) 'name)))
-      (apply m (cons object args)))))
+(define (field-ref object name)
+  (let ((field (hashq-ref (object-fields object) name)))
+    (or field (method-ref object name))))
 
-(define-syntax-rule (method-call object name arg ...)
-  ((method-ref object name) arg ...))
+(define (field-set! object name value)
+  (hashq-set! (object-fields object) name value))
 
-(define-syntax-rule (field-ref object name)
-  (hashq-ref (object-fields object) 'name))
-
-(define-syntax-rule (field-set! object name value)
-  (hashq-set! (object-fields object) 'name value))
-
-
-
-
-(define-class Cat
-  (init (name)
-    (field-set! self name name))
-  (speak (word)
-    (string-append (field-ref self name) ": " word)))
-(define-instance tiger Cat "Tiger")
-
-(method-call tiger speak "Hello World")
-(field-ref tiger name)
-(field-set! tiger test "Lion")
-(field-ref tiger test)
-
+(define (make-instance class . args)
+     (let* ((properties (make-hash-table))
+            (ret (make-struct/no-tail class properties))
+            (init (method-ref ret 'init)))
+       (when init
+         (call-with-return init args))
+       ret))

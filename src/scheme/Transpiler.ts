@@ -57,8 +57,15 @@ export default class Transpiler
   }
 
   visitClass(statement: Class): string {
-    // TODO
-    return `${statement.name.lexeme}`;
+    let ret = `(define-class ${statement.name.lexeme}`;
+    for (const method of statement.methods) {
+      ret += `(${method.name.lexeme}`;
+      ret += ` (${method.params.map(param => param.lexeme).join(" ")}) `;
+      ret += this.stringifyBlock(method.body);
+      ret += ")";
+    }
+    ret += ")";
+    return ret;
   }
 
   visitExpression(statement: Expression): string {
@@ -155,20 +162,18 @@ export default class Transpiler
   }
 
   visitCall(expr: Call): string {
-    let ret = "(call/cc (lambda (return)";
-    this.incIndent();
-    ret += `(${expr.callee.accept(this)}`;
+    let ret = `(*dispatch* ${expr.callee.accept(this)} `;
     if (expr.args.length) {
-      ret += " " + expr.args.map(arg => arg.accept(this)).join(" ");
+      ret += expr.args.map(arg => arg.accept(this)).join(" ");
     }
-    ret += " return)))";
-    this.depth -= 1;
+    ret += ")";
     return ret;
   }
 
   visitGetter(expression: Getter): string {
-    // TODO
-    return `${expression.object}->${expression.name.lexeme}`;
+    return `(field-ref ${expression.object.accept(this)} '${
+      expression.name.lexeme
+    })`;
   }
 
   visitGrouping(expr: Grouping): string {
@@ -193,13 +198,13 @@ export default class Transpiler
   }
 
   visitSetter(expression: Setter): string {
-    // TODO
-    return `${expression.object}->${expression.name.lexeme}`;
+    return `(field-set! ${expression.object.accept(this)} '${
+      expression.name.lexeme
+    } ${expression.value.accept(this)})`;
   }
 
   visitThis(expression: This): string {
-    // TODO
-    return `${expression.keyword}`;
+    return `${expression.keyword.lexeme}`;
   }
 
   visitTernary(expr: Ternary): string {
@@ -258,7 +263,10 @@ export default class Transpiler
 
   private writeHeader(): string {
     let ret = this.createAddHandler();
+    ret += this.createReturnHandler();
+    ret += this.createClassHandler();
     ret += this.createClockHandler();
+    ret += this.createDispatchHandler();
     return ret;
   }
 
@@ -266,8 +274,20 @@ export default class Transpiler
     return this.loadSchemeFunction("add");
   }
 
+  private createReturnHandler(): string {
+    return this.loadSchemeFunction("call-with-return");
+  }
+
+  private createClassHandler(): string {
+    return this.loadSchemeFunction("class");
+  }
+
   private createClockHandler(): string {
     return this.loadSchemeFunction(NativeFunc.CLOCK);
+  }
+
+  private createDispatchHandler(): string {
+    return this.loadSchemeFunction("dispatch");
   }
 
   private loadSchemeFunction(name: string): string {

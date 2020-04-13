@@ -2,12 +2,13 @@ class Cat {
     init(name) {
         this.name = name;
     }
-
     speak() {
-        return "meow";
+        return this.name + ": meow";
     }
 }
 
 var cat = Cat("Tiger");
-var speak = cat.speak;
-print cat.name + ": " + speak();
+
+print Cat;
+print cat.speak();
+print cat.name;
