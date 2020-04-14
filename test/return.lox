@@ -1,0 +1,9 @@
+fun a(x) {
+    return x-1;
+}
+
+fun b(x) {
+    return x*x;
+}
+
+print a(b(7)) + b(a(7));

@@ -262,12 +262,17 @@ export default class Transpiler
   }
 
   private writeHeader(): string {
-    let ret = this.createAddHandler();
+    let ret = this.modulesHeader();
+    ret += this.createAddHandler();
     ret += this.createReturnHandler();
     ret += this.createClassHandler();
     ret += this.createClockHandler();
     ret += this.createDispatchHandler();
     return ret;
+  }
+
+  private modulesHeader(): string {
+    return this.loadSchemeFunction("modules");
   }
 
   private createAddHandler(): string {

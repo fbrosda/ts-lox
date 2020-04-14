@@ -1,4 +1,3 @@
-(use-modules (srfi srfi-1))
 (define *add*
   (lambda (. args)
     (cond ((every number? args)
