@@ -19,3 +19,7 @@ executed with `node index.js <path-to-file>`
 Furthermore the AstPrinter from the book was enhanced and converted to a Scheme
 Transpiler, which generates executable scheme code. To transpile a script call
 `node index.js --scheme <path-to-file>`.
+
+# Known Problems
+
+- [ ] For the scheme transpiler, classes can only be defined on the top level.
