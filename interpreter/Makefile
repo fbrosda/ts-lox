@@ -14,6 +14,7 @@ watch: copy_scheme_files
 	npx tsc --build src/tsconfig.json --watch
 
 copy_scheme_files:
+	mkdir -p bin/scheme
 	cp src/scheme/*.scm bin/scheme
 
 clean:
