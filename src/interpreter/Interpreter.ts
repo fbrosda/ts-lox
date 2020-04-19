@@ -8,6 +8,7 @@ import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import Logical from "../expr/Logical.js";
 import Setter from "../expr/Setter.js";
+import Super from "../expr/Super.js";
 import Ternary from "../expr/Ternary.js";
 import This from "../expr/This.js";
 import Unary from "../expr/Unary.js";
@@ -65,7 +66,23 @@ export default class Interpreter
   }
 
   visitClass(statement: Class): void {
+    let superclass = null;
+    if (statement.superclass) {
+      superclass = this.evaluate(statement.superclass);
+      if (!this.isClassCallable(superclass)) {
+        throw new RuntimeError(
+          statement.superclass.name,
+          "Superclass must be a class."
+        );
+      }
+    }
     this.environment.define(statement.name.lexeme, null);
+
+    if (statement.superclass) {
+      this.environment = new Environment(this.environment);
+      this.environment.define(ClassKeyword.SUPER, superclass);
+    }
+
     const methods = new Map<string, FuncInstance>();
     for (const method of statement.methods) {
       const func = new FuncInstance(
@@ -76,7 +93,16 @@ export default class Interpreter
       methods.set(method.name.lexeme, func);
     }
 
-    const klass = new ClassCallable(statement.name.lexeme, methods);
+    const klass = new ClassCallable(statement.name.lexeme, superclass, methods);
+    if (superclass) {
+      if (!this.environment.enclosing) {
+        throw new RuntimeError(
+          statement.name,
+          "No enclosing environment available."
+        );
+      }
+      this.environment = this.environment.enclosing;
+    }
     this.environment.assign(statement.name, klass);
   }
 
@@ -276,6 +302,26 @@ export default class Interpreter
     return value;
   }
 
+  visitSuper(expression: Super) {
+    const distance = this.locals.get(expression);
+    if (!distance) {
+      throw new RuntimeError(
+        expression.keyword,
+        "Superclass must be defined, somthing went very wrong."
+      );
+    }
+    const superclass = this.environment.getAt(
+      distance,
+      ClassKeyword.SUPER
+    ) as ClassCallable;
+    const instance = this.environment.getAt(
+      distance - 1,
+      ClassKeyword.THIS
+    ) as ClassInstance;
+    const method = superclass.findMethod(expression.method);
+    return method.bind(instance);
+  }
+
   visitThis(expression: This): LiteralValue {
     return this.lookUpVariable(expression.keyword, expression);
   }
@@ -367,6 +413,10 @@ export default class Interpreter
 
   private isCallable(callee: LiteralValue): callee is Callable {
     return !!(callee && (callee as Callable).exec);
+  }
+
+  private isClassCallable(callee: LiteralValue): callee is ClassCallable {
+    return !!(callee && (callee as ClassCallable).findMethod);
   }
 
   private isClassInstance(object: LiteralValue): object is ClassInstance {

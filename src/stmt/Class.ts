@@ -2,15 +2,18 @@ import Stmt from "./Stmt.js";
 import Visitor from "./Visitor.js";
 import Token from "../scanner/Token.js";
 import Func from "../stmt/Func.js";
+import Variable from "../expr/Variable.js";
 
 export default class Class extends Stmt {
   name: Token;
+  superclass: Variable | null;
   methods: Func[];
 
-  constructor(name: Token, methods: Func[]) {
+  constructor(name: Token, superclass: Variable | null, methods: Func[]) {
     super();
 
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 

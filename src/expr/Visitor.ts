@@ -6,6 +6,7 @@ import Grouping from "./Grouping.js";
 import Literal from "./Literal.js";
 import Logical from "./Logical.js";
 import Setter from "./Setter.js";
+import Super from "./Super.js";
 import Ternary from "./Ternary.js";
 import This from "./This.js";
 import Unary from "./Unary.js";
@@ -20,6 +21,7 @@ export default interface Visitor<T> {
   visitLiteral(expression: Literal): T;
   visitLogical(expression: Logical): T;
   visitSetter(expression: Setter): T;
+  visitSuper(expression: Super): T;
   visitTernary(expression: Ternary): T;
   visitThis(expression: This): T;
   visitUnary(expression: Unary): T;

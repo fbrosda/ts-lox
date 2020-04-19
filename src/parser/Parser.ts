@@ -26,6 +26,7 @@ import Var from "../stmt/Var.js";
 import While from "../stmt/While.js";
 import ParseError from "./ParseError.js";
 import This from "../expr/This.js";
+import Super from "../expr/Super.js";
 
 const MAX_ARGS_LENGTH = 255;
 interface ExpressionF {
@@ -75,6 +76,13 @@ export default class Parser {
 
   private classDeclaration(): Stmt {
     const name = this.consume(TokenType.IDENTIFIER, "Expect class name.");
+
+    let superclass = null;
+    if (this.match(TokenType.LESS)) {
+      this.consume(TokenType.IDENTIFIER, "Expect superclass name.");
+      superclass = new Variable(this.previous());
+    }
+
     this.consume(TokenType.LEFT_BRACE, `Expect '{' before class body.`);
 
     const methods = [];
@@ -83,7 +91,7 @@ export default class Parser {
     }
     this.consume(TokenType.RIGHT_BRACE, `Expect '}' after class body.`);
 
-    return new Class(name, methods);
+    return new Class(name, superclass, methods);
   }
 
   private statement(): Stmt {
@@ -410,6 +418,16 @@ export default class Parser {
 
     if (this.match(TokenType.NUMBER, TokenType.STRING)) {
       return new Literal(this.previous().literal);
+    }
+
+    if (this.match(TokenType.SUPER)) {
+      const keyword = this.previous();
+      this.consume(TokenType.DOT, "Expect '.' after 'super'.");
+      const method = this.consume(
+        TokenType.IDENTIFIER,
+        "Expect superclass method name."
+      );
+      return new Super(keyword, method);
     }
 
     if (this.match(TokenType.THIS)) {

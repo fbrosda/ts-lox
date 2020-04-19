@@ -1,12 +1,14 @@
+import { ClassKeyword } from "../const.js";
 import Assign from "../expr/Assign.js";
 import Binary from "../expr/Binary.js";
 import Call from "../expr/Call.js";
 import Expr from "../expr/Expr.js";
 import Getter from "../expr/Getter.js";
 import Grouping from "../expr/Grouping.js";
-import Logical from "../expr/Logical.js";
 import Literal from "../expr/Literal.js";
+import Logical from "../expr/Logical.js";
 import Setter from "../expr/Setter.js";
+import Super from "../expr/Super.js";
 import Ternary from "../expr/Ternary.js";
 import This from "../expr/This.js";
 import Unary from "../expr/Unary.js";
@@ -27,11 +29,11 @@ import Stmt from "../stmt/Stmt.js";
 import Var from "../stmt/Var.js";
 import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
-import { ClassKeyword } from "../const.js";
 
 enum ClassType {
   NONE,
-  CLASS
+  CLASS,
+  SUBCLASS
 }
 enum FunctionType {
   NONE,
@@ -65,6 +67,19 @@ export default class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
     this.declare(statement.name);
     this.define(statement.name);
 
+    if (statement.superclass) {
+      this.currentClass = ClassType.SUBCLASS;
+      if (statement.name.lexeme === statement.superclass.name.lexeme) {
+        Lox.error(
+          statement.superclass.name,
+          "A class cannot inherit from itself."
+        );
+      }
+      const scope = this.beginScope();
+      scope.set(ClassKeyword.SUPER, true);
+      this.resolveExpr(statement.superclass);
+    }
+
     const scope = this.beginScope();
     scope.set(ClassKeyword.THIS, true);
 
@@ -76,6 +91,10 @@ export default class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
       this.resolveFunc(method, declaration);
     }
     this.endScope();
+
+    if (statement.superclass) {
+      this.endScope();
+    }
 
     this.currentClass = enclosingClass;
   }
@@ -176,6 +195,18 @@ export default class Resolver implements ExprVisitor<void>, StmtVisitor<void> {
   visitSetter(expression: Setter): void {
     this.resolveExpr(expression.value);
     this.resolveExpr(expression.object);
+  }
+
+  visitSuper(expression: Super): void {
+    if (this.currentClass === ClassType.NONE) {
+      Lox.error(expression.keyword, "Cannot use 'sper' outside of a class.");
+    } else if (this.currentClass === ClassType.CLASS) {
+      Lox.error(
+        expression.keyword,
+        "Cannot use 'sper' in a class with no superclass."
+      );
+    }
+    this.resolveLocal(expression, expression.keyword);
   }
 
   visitTernary(expression: Ternary): void {

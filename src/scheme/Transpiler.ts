@@ -9,6 +9,7 @@ import Grouping from "../expr/Grouping.js";
 import Literal from "../expr/Literal.js";
 import Logical from "../expr/Logical.js";
 import Setter from "../expr/Setter.js";
+import Super from "../expr/Super.js";
 import Ternary from "../expr/Ternary.js";
 import This from "../expr/This.js";
 import Unary from "../expr/Unary.js";
@@ -201,6 +202,10 @@ export default class Transpiler
     return `(field-set! ${expression.object.accept(this)} '${
       expression.name.lexeme
     } ${expression.value.accept(this)})`;
+  }
+
+  visitSuper(expression: Super): string {
+    return expression.method.lexeme;
   }
 
   visitThis(expression: This): string {

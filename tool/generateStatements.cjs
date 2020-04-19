@@ -9,7 +9,7 @@ const VISITOR = "Visitor";
 const TYPES = {
   Block: `${STMT}[]: statements`,
   Break: `Token: name`,
-  Class: `Token: name, Func[]: methods`,
+  Class: `Token: name, Variable | null: superclass, Func[]: methods`,
   Expression: `${EXPR}: expression`,
   Func: `Token: name, Token[]: params, ${STMT}[]: body`,
   If: `${EXPR}: condition, ${STMT}: thenBranch, ${STMT} | null: elseBranch`,
@@ -92,6 +92,9 @@ async function generateTypeClass(name, parameter) {
     }
     if (parameter.includes("Func")) {
       tmp += 'import Func from "../stmt/Func.js";\n';
+    }
+    if (parameter.includes("Variable")) {
+      tmp += 'import Variable from "../expr/Variable.js";\n';
     }
     return tmp;
   }

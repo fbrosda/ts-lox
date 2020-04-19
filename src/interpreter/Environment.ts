@@ -3,7 +3,7 @@ import LiteralValue from "./LiteralValue.js";
 import RuntimeError from "./RuntimeError.js";
 
 export default class Environment {
-  private enclosing: Environment | null;
+  enclosing: Environment | null;
   private values: Map<string, LiteralValue>;
 
   constructor(enclosing: Environment | null = null) {

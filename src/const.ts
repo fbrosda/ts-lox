@@ -1,6 +1,7 @@
 export const ClassKeyword = {
   INIT: "init",
-  THIS: "this"
+  THIS: "this",
+  SUPER: "super"
 };
 
 export const NativeFunc = {

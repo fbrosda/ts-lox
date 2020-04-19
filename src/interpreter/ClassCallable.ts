@@ -9,10 +9,16 @@ import RuntimeError from "./RuntimeError.js";
 
 export default class ClassCallable implements Callable {
   private name: string;
+  private superclass: ClassCallable | null;
   private methods: Map<string, FuncInstance>;
 
-  constructor(name: string, methods: Map<string, FuncInstance>) {
+  constructor(
+    name: string,
+    superclass: ClassCallable | null,
+    methods: Map<string, FuncInstance>
+  ) {
     this.name = name;
+    this.superclass = superclass;
     this.methods = methods;
   }
 
@@ -36,6 +42,10 @@ export default class ClassCallable implements Callable {
     const method = this.methods.get(name.lexeme);
     if (typeof method !== "undefined") {
       return method;
+    }
+
+    if (this.superclass != null) {
+      return this.superclass.findMethod(name);
     }
 
     throw new RuntimeError(name, `Undefined property '${name.lexeme}'.`);
