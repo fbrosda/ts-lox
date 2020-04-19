@@ -59,6 +59,9 @@ export default class Transpiler
 
   visitClass(statement: Class): string {
     let ret = `(define-class ${statement.name.lexeme}`;
+    if (statement.superclass) {
+      ret += ` < ${statement.superclass.accept(this)}`;
+    }
     for (const method of statement.methods) {
       ret += `(${method.name.lexeme}`;
       ret += ` (${method.params.map(param => param.lexeme).join(" ")}) `;
@@ -205,7 +208,7 @@ export default class Transpiler
   }
 
   visitSuper(expression: Super): string {
-    return expression.method.lexeme;
+    return `(method-ref ${expression.keyword.lexeme} '${expression.method.lexeme})`;
   }
 
   visitThis(expression: This): string {

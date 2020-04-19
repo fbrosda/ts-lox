@@ -3,7 +3,8 @@
     (struct-ref obj n)))
 
 (define-accessor class-name (+ vtable-offset-user 0))
-(define-accessor class-methods (+ vtable-offset-user 1))
+(define-accessor class-parent (+ vtable-offset-user 1))
+(define-accessor class-methods (+ vtable-offset-user 2))
 (define-accessor object-fields 0)
 
 (define-syntax-rule 
@@ -24,7 +25,7 @@
 
 (define <class>
   (make-vtable
-    (string-append standard-vtable-fields "pwpw")
+    (string-append standard-vtable-fields "pwpwpw")
     print-class))
 
 (define (class? x)
@@ -34,12 +35,16 @@
 (define (print-instance x port)
   (format port "<~a instance>" (class-name (struct-vtable x))))
 
-(define (create-class name)
-  (make-struct/no-tail <class> 
-                       (make-struct-layout "pw") print-instance name (make-hash-table)))
+(define (create-class name superclass)
+  (make-struct/no-tail <class>
+                       (make-struct-layout "pw")
+                       print-instance
+                       name
+                       superclass
+                       (make-hash-table)))
 
-(define (make-class name funcs)
-  (let* ((class (create-class name))
+(define (make-class name superclass funcs)
+  (let* ((class (create-class name superclass))
          (methods (class-methods class)))
     (for-each (lambda (definition)
                 (define-method methods definition))
@@ -49,34 +54,47 @@
 (define-syntax create-method
   (lambda (x)
     (syntax-case x ()
-                 ((_ (args ...) body ...)
+                 ((_ superclass (args ...) body ...)
                   (with-syntax ((this (datum->syntax x 'this))
-                                (return (datum->syntax x 'return)))
+                                (return (datum->syntax x 'return))
+                                (super (datum->syntax x 'super)))
                                #'(lambda (this return args ...)
-                                   body ...))))))
+                                   (let ((super superclass))
+                                     body ...)))))))
 
 (define-syntax define-class
-  (syntax-rules ()
+  (syntax-rules (<)
     ((_ name (method-name method-args method-body ...) ...)
+     (define-class name < #f (method-name method-args method-body ...) ...))
+    ((_ name < superclass (method-name method-args method-body ...) ...)
      (define name
        (make-class 'name 
+                   superclass
                    '((method-name 
-                       (create-method method-args
+                       (create-method superclass
+                                      method-args
                                       method-body ...))
                      ...))))))
 
+(define (find-method object name)
+  (let* ((c (if (class? object) object (struct-vtable object)))
+         (m (hashq-ref (class-methods c) name))
+         (p (class-parent c)))
+    (cond 
+      (m m)
+      (p (find-method p name))
+      (else #f))))
+
 (define (method-ref object name)
-  (let ((m (hashq-ref 
-             (class-methods (struct-vtable object))
-             name)))
-    (if m
+  (let ((m (find-method object name)))
+    (if m 
         (lambda args (apply m (cons object args)))
         #f)))
 
 (define (method-call object name . args)
   (let ((m (method-ref object name)))
     (if m
-        (apply m args)
+        (call-with-return m args)
         (throw 'unknownMethod 
                (*add* "Cannot find method " name " for object " object)))))
 
