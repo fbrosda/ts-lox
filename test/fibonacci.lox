@@ -3,7 +3,7 @@ fun fibonacci(n) {
   return fibonacci(n - 2) + fibonacci(n - 1);
 }
 
-for (var i = 20; i < 30; i = i + 1) {
+for (var i = 30; i < 35; i = i + 1) {
   var start = clock();
   print i + ": " + fibonacci(i);
   print "Time: " + (clock() - start);
