@@ -10,4 +10,3 @@ export default class RuntimeError extends Error {
     Object.setPrototypeOf(this, RuntimeError.prototype);
   }
 }
-

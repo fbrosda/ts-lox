@@ -9,7 +9,13 @@ export default class Ternary extends Expr {
   second: Token;
   right: Expr;
 
-  constructor(cond: Expr, first: Token, left: Expr, second: Token, right: Expr) {
+  constructor(
+    cond: Expr,
+    first: Token,
+    left: Expr,
+    second: Token,
+    right: Expr
+  ) {
     super();
 
     this.cond = cond;

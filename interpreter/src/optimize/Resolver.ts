@@ -33,13 +33,13 @@ import While from "../stmt/While.js";
 enum ClassType {
   NONE,
   CLASS,
-  SUBCLASS
+  SUBCLASS,
 }
 enum FunctionType {
   NONE,
   FUNCTION,
   INITIALIZER,
-  METHOD
+  METHOD,
 }
 
 export default class Resolver implements ExprVisitor<void>, StmtVisitor<void> {

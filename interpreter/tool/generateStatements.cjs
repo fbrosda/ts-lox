@@ -16,7 +16,7 @@ const TYPES = {
   Print: `${EXPR}: expression`,
   Return: `Token: keyword, ${EXPR}: value`,
   Var: `Token: name, ${EXPR}: initializer`,
-  While: `${EXPR}: condition, ${STMT}: body`
+  While: `${EXPR}: condition, ${STMT}: body`,
 };
 
 generateStatementClass();
@@ -55,13 +55,13 @@ async function generateVisitorClass() {
 }
 
 async function generateTypeClass(name, parameter) {
-  const parameterList = parameter.split(",").map(param =>
+  const parameterList = parameter.split(",").map((param) =>
     !param
       ? []
       : param
           .trim()
           .split(":")
-          .map(x => x.trim())
+          .map((x) => x.trim())
   );
   let ret = "";
 

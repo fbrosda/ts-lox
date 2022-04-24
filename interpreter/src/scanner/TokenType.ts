@@ -48,7 +48,7 @@ enum TokenType {
   THIS,
   TRUE,
   VAR,
-  WHILE
+  WHILE,
 }
 
 export default TokenType;

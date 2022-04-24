@@ -30,7 +30,8 @@ import StmtVisitor from "../stmt/Visitor.js";
 import While from "../stmt/While.js";
 
 export default class Transpiler
-  implements ExprVisitor<string>, StmtVisitor<string> {
+  implements ExprVisitor<string>, StmtVisitor<string>
+{
   private depth = 0;
 
   transpile(statements: Stmt[]): string {
@@ -64,7 +65,7 @@ export default class Transpiler
     }
     for (const method of statement.methods) {
       ret += `(${method.name.lexeme}`;
-      ret += ` (${method.params.map(param => param.lexeme).join(" ")}) `;
+      ret += ` (${method.params.map((param) => param.lexeme).join(" ")}) `;
       ret += this.stringifyBlock(method.body);
       ret += ")";
     }
@@ -90,7 +91,7 @@ export default class Transpiler
     const start = this.incIndent();
     ret += `(lambda (return `;
     if (statement.params.length) {
-      ret += statement.params.map(param => param.lexeme).join(" ");
+      ret += statement.params.map((param) => param.lexeme).join(" ");
     }
     ret += ")";
 
@@ -168,7 +169,7 @@ export default class Transpiler
   visitCall(expr: Call): string {
     let ret = `(*dispatch* ${expr.callee.accept(this)} `;
     if (expr.args.length) {
-      ret += expr.args.map(arg => arg.accept(this)).join(" ");
+      ret += expr.args.map((arg) => arg.accept(this)).join(" ");
     }
     ret += ")";
     return ret;

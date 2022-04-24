@@ -18,7 +18,7 @@ const TYPES = {
   Ternary: `${EXPR}: cond, Token: first, ${EXPR}: left, Token: second, ${EXPR}: right`,
   This: `Token: keyword`,
   Unary: `Token: operator, ${EXPR}: expression`,
-  Variable: "Token: name"
+  Variable: "Token: name",
 };
 
 generateExpressionClass();
@@ -57,11 +57,11 @@ async function generateVisitorClass() {
 }
 
 async function generateTypeClass(name, parameter) {
-  const parameterList = parameter.split(",").map(param =>
+  const parameterList = parameter.split(",").map((param) =>
     param
       .trim()
       .split(":")
-      .map(x => x.trim())
+      .map((x) => x.trim())
   );
   let ret = "";
 

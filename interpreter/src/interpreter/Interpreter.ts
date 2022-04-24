@@ -38,7 +38,8 @@ import FuncInstance from "./FuncInstance.js";
 import LiteralValue from "./LiteralValue.js";
 
 export default class Interpreter
-  implements ExprVisitor<LiteralValue>, StmtVisitor<void> {
+  implements ExprVisitor<LiteralValue>, StmtVisitor<void>
+{
   globals = new Environment();
   private environment = this.globals;
   private locals = new Map<Expr, number>();
@@ -378,7 +379,7 @@ export default class Interpreter
   ): void {
     if (
       !operands
-        .map(operand => this.isNumber(operand))
+        .map((operand) => this.isNumber(operand))
         .reduce((acc, val) => acc && val, true)
     ) {
       throw new RuntimeError(operator, "All operands must be numbers");
